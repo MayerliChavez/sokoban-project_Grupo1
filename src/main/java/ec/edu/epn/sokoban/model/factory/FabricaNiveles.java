@@ -16,7 +16,7 @@ public class FabricaNiveles {
 
     public Tablero construirTablero(Nivel n) {
         if (n == null || n.getMapaDatos() == null) {
-            throw new IllegalArgumentException("El nivel no tiene datos de mapa válidos.");
+            throw new IllegalArgumentException("El nivel no tiene datos de mapa válidos");
         }
 
         String[][] mapaDatos = n.getMapaDatos();
