@@ -50,7 +50,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>ec.edu.epn.sokoban.Main</mainClass>
+                    <mainClass>ec.edu.epn.sokoban.MainApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
