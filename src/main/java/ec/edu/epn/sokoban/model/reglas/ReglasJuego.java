@@ -4,6 +4,7 @@ import ec.edu.epn.sokoban.model.Direccion;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.escenario.Caja;
 import java.util.List;
 
 public class ReglasJuego {
@@ -28,6 +29,24 @@ public class ReglasJuego {
 
         if (destino == null) {
             return false;
+        }
+
+        if (destino instanceof Caja) {
+            int filaTrasCaja = filaDestino + d.getDeltaFila();
+            int columnaTrasCaja = columnaDestino + d.getDeltaColumna();
+
+            if (filaTrasCaja < 0 || filaTrasCaja >= t.getFilas()
+                    || columnaTrasCaja < 0 || columnaTrasCaja >= t.getColumnas()) {
+                return false;
+            }
+
+            Casilla casillaTrasCaja = t.obtenerCasilla(filaTrasCaja, columnaTrasCaja);
+
+            if (casillaTrasCaja == null) {
+                return false;
+            }
+
+            return casillaTrasCaja.esTransitable();
         }
 
         return destino.esTransitable();
