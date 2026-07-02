@@ -14,6 +14,10 @@ public class GestorColisiones {
      * (pared, límite del mapa, o caja que no se puede empujar).
      */
     public boolean verificarColision(Tablero t, Casilla c, Direccion d) {
+        if (t == null || c == null || d == null) {
+            return true;
+        }
+
         int filaDestino = c.getFila() + d.getDeltaFila();
         int columnaDestino = c.getColumna() + d.getDeltaColumna();
 
@@ -38,7 +42,7 @@ public class GestorColisiones {
             }
 
             Casilla trasCaja = t.obtenerCasilla(filaTrasCaja, columnaTrasCaja);
-            if (trasCaja instanceof Pared || trasCaja instanceof Caja) {
+            if (trasCaja == null || trasCaja instanceof Pared || trasCaja instanceof Caja) {
                 return true; // caja bloqueada, no se puede empujar
             }
         }
@@ -50,6 +54,10 @@ public class GestorColisiones {
      * Ejecuta el empuje de la caja 'd' hacia 'dir'. Retorna true si el empuje se realizó.
      */
     public boolean resolverEmpuje(Tablero t, Casilla c, Caja d, Direccion dir) {
+        if (t == null || d == null || dir == null) {
+            return false;
+        }
+
         int filaCaja = d.getFila();
         int columnaCaja = d.getColumna();
         int filaDestino = filaCaja + dir.getDeltaFila();
@@ -61,7 +69,7 @@ public class GestorColisiones {
         }
 
         Casilla destino = t.obtenerCasilla(filaDestino, columnaDestino);
-        if (!destino.esTransitable() || destino instanceof Caja) {
+        if (destino == null || !destino.esTransitable()) {
             return false;
         }
 
