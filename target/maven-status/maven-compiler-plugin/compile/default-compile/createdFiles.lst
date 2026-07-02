@@ -4,13 +4,10 @@ ec\edu\epn\sokoban\model\historial\HistorialMovimientos.class
 ec\edu\epn\sokoban\model\escenario\Tablero.class
 ec\edu\epn\sokoban\model\escenario\Casilla.class
 ec\edu\epn\sokoban\model\Direccion.class
-ec\edu\epn\sokoban\view\estilos\ComponentesUI.class
 ec\edu\epn\sokoban\model\escenario\Pared.class
-ec\edu\epn\sokoban\view\VentanaPrincipal.class
 ec\edu\epn\sokoban\view\Creditos.class
 ec\edu\epn\sokoban\model\factory\FabricaNiveles.class
 ec\edu\epn\sokoban\view\PanelTablero.class
-ec\edu\epn\sokoban\view\SeleccionNivel.class
 ec\edu\epn\sokoban\controller\ControladorTeclado.class
 ec\edu\epn\sokoban\controller\GestorVentanas.class
 ec\edu\epn\sokoban\model\reglas\ReglasJuego.class

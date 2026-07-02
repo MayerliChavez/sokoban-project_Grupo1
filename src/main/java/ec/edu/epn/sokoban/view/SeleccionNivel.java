@@ -2,6 +2,7 @@ package ec.edu.epn.sokoban.view;
 
 import ec.edu.epn.sokoban.controller.GestorVentanas;
 import ec.edu.epn.sokoban.model.JuegoSokoban;
+import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.view.estilos.ComponentesUI;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,13 +13,18 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SeleccionNivel extends BorderPane {
+
     private final JuegoSokoban juego;
     private final GestorVentanas gestorVentanas;
 
-    //Elementos graficos
     private Button btnVolver;
-    private final Button[] botonesNivel = new Button[5];
+
+    private final List<Button> botonesNivel = new ArrayList<>();
+    private final List<Nivel> nivelesMostrados = new ArrayList<>();
 
     public SeleccionNivel(
             JuegoSokoban juego,
@@ -33,20 +39,24 @@ public class SeleccionNivel extends BorderPane {
     }
 
     private void configurarVentana() {
+
         setStyle(
                 "-fx-background-color: linear-gradient(to bottom, #10202B 0%, #0B0F12 45%, #050607 100%);"
         );
-
     }
 
     private void inicializarComponentes() {
+
         setTop(crearCabecera());
         setCenter(crearPanelNiveles());
         setBottom(crearPie());
+
     }
 
-    private VBox crearCabecera(){
+    private VBox crearCabecera() {
+
         VBox cabecera = new VBox(10);
+
         cabecera.setAlignment(Pos.CENTER);
         cabecera.setPadding(new Insets(35));
 
@@ -74,21 +84,68 @@ public class SeleccionNivel extends BorderPane {
         grid.setHgap(30);
         grid.setVgap(30);
 
-        // Crear tarjetas
-        for (int i = 0; i < botonesNivel.length; i++) {
-            botonesNivel[i] = ComponentesUI.crearTarjetaNivel(i + 1, false);
+        botonesNivel.clear();
+        nivelesMostrados.clear();
+
+        cargarNiveles();
+
+        for (int i = 0; i < botonesNivel.size(); i++) {
+
+            int columna = i % 3;
+            int fila = i / 3;
+
+            grid.add(botonesNivel.get(i), columna, fila);
         }
 
-        // Primera fila
-        grid.add(botonesNivel[0], 0, 0);
-        grid.add(botonesNivel[1], 1, 0);
-        grid.add(botonesNivel[2], 2, 0);
-
-        // Segunda fila (centrada)
-        grid.add(botonesNivel[3], 1, 1);
-        grid.add(botonesNivel[4], 2, 1);
-
         return grid;
+    }
+
+    /**
+     * Carga los niveles disponibles.
+     * Temporalmente crea niveles ficticios.
+     * Cuando exista la lectura de TXT este método no deberá cambiar.
+     */
+    private void cargarNiveles() {
+
+        if (juego.getNivelesDisponibles().isEmpty()) {
+
+            for (int i = 1; i <= 5; i++) {
+
+                Nivel nivel = new Nivel("nivel" + i + ".txt");
+
+                nivelesMostrados.add(nivel);
+
+                Button tarjeta =
+                        ComponentesUI.crearTarjetaNivel(
+                                i,
+                                nivel.isCompletado()
+                        );
+
+                botonesNivel.add(tarjeta);
+            }
+
+        } else {
+
+            List<Nivel> niveles =
+                    juego.getNivelesDisponibles();
+
+            for (int i = 0; i < niveles.size(); i++) {
+
+                Nivel nivel = niveles.get(i);
+
+                nivelesMostrados.add(nivel);
+
+                Button tarjeta =
+                        ComponentesUI.crearTarjetaNivel(
+                                i + 1,
+                                nivel.isCompletado()
+                        );
+
+                botonesNivel.add(tarjeta);
+            }
+
+        }
+
     }
 
     private HBox crearPie() {
@@ -98,7 +155,8 @@ public class SeleccionNivel extends BorderPane {
         pie.setAlignment(Pos.CENTER);
         pie.setPadding(new Insets(25));
 
-        btnVolver = ComponentesUI.crearBotonPrincipal("Volver");
+        btnVolver =
+                ComponentesUI.crearBotonPrincipal("Volver");
 
         pie.getChildren().add(btnVolver);
 
@@ -107,26 +165,21 @@ public class SeleccionNivel extends BorderPane {
 
     private void configurarEventos() {
 
-        botonesNivel[0].setOnAction(e ->
-                gestorVentanas.abrirNivel(1));
+        for (int i = 0; i < botonesNivel.size(); i++) {
 
-        botonesNivel[1].setOnAction(e ->
-                gestorVentanas.abrirNivel(2));
+            final Nivel nivel = nivelesMostrados.get(i);
 
-        botonesNivel[2].setOnAction(e ->
-                gestorVentanas.abrirNivel(3));
+            botonesNivel.get(i).setOnAction(e ->
+                    gestorVentanas.abrirNivel(nivel));
 
-        botonesNivel[3].setOnAction(e ->
-                gestorVentanas.abrirNivel(4));
-
-        botonesNivel[4].setOnAction(e ->
-                gestorVentanas.abrirNivel(5));
+        }
 
         btnVolver.setOnAction(e ->
                 gestorVentanas.mostrarMenu());
+
     }
 
-    public Button[] getBotonesNivel() {
+    public List<Button> getBotonesNivel() {
         return botonesNivel;
     }
 
@@ -137,4 +190,5 @@ public class SeleccionNivel extends BorderPane {
     public JuegoSokoban getJuego() {
         return juego;
     }
+
 }

@@ -54,11 +54,11 @@ public class MenuInicio extends BorderPane {
         contenedor.setPadding(new Insets(40));
 
         Label titulo =
-                ComponentesUI.crearTituloPrincipal("SOKOBAN");
+                ComponentesUI.crearTituloPrincipal("\uD83D\uDCE6 SOKOBAN");
 
         Label subtitulo =
                 ComponentesUI.crearSubtitulo(
-                        "Empuja todas las cajas hasta su destino"
+                        "Organiza las cajas y supera cada desafío"
                 );
 
         btnNuevaPartida =
@@ -97,7 +97,7 @@ public class MenuInicio extends BorderPane {
                 ComponentesUI.crearSubtitulo("Escuela Politécnica Nacional");
 
         Label grupo =
-                ComponentesUI.crearSubtitulo("Grupo 1 • Sokoban");
+                ComponentesUI.crearSubtitulo("GR2SW • Sokoban • Versión 1.0");
 
         pie.getChildren().addAll(
                 universidad,

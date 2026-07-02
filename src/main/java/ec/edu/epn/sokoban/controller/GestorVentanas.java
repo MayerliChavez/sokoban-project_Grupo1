@@ -30,7 +30,7 @@ public class GestorVentanas {
 
     //Muestra la ventana principal del juego.
     public void mostrarJuego(Tablero tablero) {
-        VentanaPrincipal ventana = new VentanaPrincipal(tablero);
+        VentanaPrincipal ventana = new VentanaPrincipal(tablero, this);
         Scene scene = new Scene(ventana, 1280, 720);
 
         stage.setTitle("Sokoban");
@@ -39,11 +39,28 @@ public class GestorVentanas {
         stage.show();
     }
 
-    //Recibe el numero del nivel
-    public void abrirNivel(int numeroNivel) {
+    public void abrirNivel(Nivel nivel) {
+        /*  Implementación temporal.
+            Actualmente se crea un tablero de prueba.
+            Cuando GestorPersistencia cargue los archivos TXT,
+            este método deberá obtener el tablero asociado al nivel.
+         */
+
+        int numeroNivel = juego.getNivelesDisponibles().indexOf(nivel) + 1;
+
+        if (numeroNivel <= 0) {
+            numeroNivel = 1;
+        }
+
         Tablero tablero = crearTableroPrueba(numeroNivel);
+
         mostrarJuego(tablero);
 
+        //Podria quedar como
+//        Tablero tablero =
+//                gestorPersistencia.cargarNivel(nivel.getNombreArchivo());
+//
+//        mostrarJuego(tablero);
     }
 
     // Mostrará el menú principal.
@@ -69,7 +86,13 @@ public class GestorVentanas {
 
     //Opcion 1
     public void nuevaPartida() {
-        abrirNivel(1);
+        if (!juego.getNivelesDisponibles().isEmpty()) {
+            abrirNivel(juego.getNivelesDisponibles().get(0));
+            return;
+        }
+
+        // Temporal mientras no existen los niveles cargados desde TXT.
+        mostrarJuego(crearTableroPrueba(1));
     }
 
     //Opcion 3
@@ -85,7 +108,6 @@ public class GestorVentanas {
 
     public void salir() {
         stage.close();
-        MenuInicio menu = new MenuInicio(juego, this);
     }
 
     //Prueba

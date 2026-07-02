@@ -1,5 +1,6 @@
 package ec.edu.epn.sokoban.view;
 
+import ec.edu.epn.sokoban.controller.GestorVentanas;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 
 import javafx.geometry.Insets;
@@ -19,6 +20,7 @@ import javafx.scene.paint.Color;
 public class VentanaPrincipal extends BorderPane {
 
     private final PanelTablero panelTablero;
+    private final GestorVentanas gestorVentanas;
 
     private Label lblNivel;
     private Label lblMovimientosSuperior;
@@ -29,10 +31,17 @@ public class VentanaPrincipal extends BorderPane {
     private Button btnPausa;
     private Button btnMenu;
 
-    public VentanaPrincipal(Tablero tablero) {
+    public VentanaPrincipal(
+            Tablero tablero,
+            GestorVentanas gestorVentanas) {
+
+        this.gestorVentanas = gestorVentanas;
+
         this.panelTablero = new PanelTablero(tablero);
+
         configurarVentana();
         construirInterfaz();
+        configurarEventos();
     }
 
     private void configurarVentana() {
@@ -40,6 +49,13 @@ public class VentanaPrincipal extends BorderPane {
                 "-fx-background-color: " +
                         "linear-gradient(to bottom, #10202B 0%, #0B0F12 45%, #050607 100%);"
         );
+    }
+
+    private void configurarEventos() {
+
+        btnMenu.setOnAction(e ->
+                gestorVentanas.mostrarMenu());
+
     }
 
     private void construirInterfaz() {
