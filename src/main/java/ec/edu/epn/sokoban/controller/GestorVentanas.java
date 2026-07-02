@@ -33,6 +33,12 @@ public class GestorVentanas {
         VentanaPrincipal ventana = new VentanaPrincipal(tablero);
         Scene scene = new Scene(ventana, 1280, 720);
 
+        // integracion de controladordel teclado
+        ControladorTeclado controladorTeclado = new ControladorTeclado(this.juego);
+        controladorTeclado.setVentanaPrincipal(ventana, tablero);
+        scene.setOnKeyPressed(controladorTeclado);
+        scene.getRoot().requestFocus();
+
         stage.setTitle("Sokoban");
         stage.setScene(scene);
         stage.setResizable(false);
