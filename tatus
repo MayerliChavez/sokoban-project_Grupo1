@@ -1,0 +1,16 @@
+*   [33m1a01c39[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdylan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Merge pull request #4 from ItsLeonel/dalin- validado
+[31m|[m[32m\[m  
+[31m|[m * [33mf8c91f2[m Corregir validarMovimiento: permitir empuje de caja si la casilla trasera es transitable
+[31m|[m * [33m18f32cc[m[33m ([m[1;31morigin/dalin[m[33m)[m Implementar ReglasJuego: validarMovimiento y verificarVictoria
+[31m|[m[31m/[m  
+*   [33m9ffbe7b[m Merge pull request #3 from ItsLeonel/leonardo - validado
+[33m|[m[34m\[m  
+[33m|[m * [33maa797bf[m[33m ([m[1;31morigin/leonardo[m[33m)[m Implementa clase Tablero: consulta y actualización de casillas, movimiento del operario
+[33m|[m[33m/[m  
+*   [33ma4397c0[m Merge pull request #2 from ItsLeonel/jose -  CONFIRMADO
+[35m|[m[36m\[m  
+[35m|[m * [33m656b079[m Implementación corregida de FabricaNiveles
+[35m|[m * [33mb1e3471[m Implementación de la parte FabricaNiveles
+[35m|[m * [33m038eb94[m Creación de la parte de FabricaNiveles
+[35m|[m[35m/[m  
+* [33m68f6eef[m[33m ([m[1;31morigin/santiago[m[33m, [m[1;31morigin/leonel[m[33m, [m[1;31morigin/dylan[m[33m)[m correción de mermeid
