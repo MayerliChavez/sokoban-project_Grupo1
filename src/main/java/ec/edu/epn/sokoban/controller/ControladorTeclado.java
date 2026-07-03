@@ -1,8 +1,7 @@
 package ec.edu.epn.sokoban.controller;
 
-import ec.edu.epn.sokoban.model.Direccion;
+import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.JuegoSokoban;
-import ec.edu.epn.sokoban.model.Direccion;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import ec.edu.epn.sokoban.view.VentanaPrincipal;
 import javafx.event.EventHandler;

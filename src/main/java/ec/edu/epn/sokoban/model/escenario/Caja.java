@@ -9,7 +9,7 @@ public class Caja extends Casilla {
     /**
      * Una caja sin coordenadas explicitas es inicializada.
      */
-    public Caja() {
+    public Caja(){
     }
 
     /**

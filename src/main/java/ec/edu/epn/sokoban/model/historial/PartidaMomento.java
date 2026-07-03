@@ -5,7 +5,6 @@ import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Pared;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
-import ec.edu.epn.sokoban.model.escenario.Portal;
 import ec.edu.epn.sokoban.model.escenario.SueloComun;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import java.util.Collections;
@@ -116,9 +115,6 @@ public class PartidaMomento {
         if (casilla instanceof Pared) {
             return new Pared(fila, columna);
         }
-        if (casilla instanceof Portal portal) {
-            return copiarPortalEnPosicion(portal, fila, columna);
-        }
         return new SueloComun(fila, columna);
     }
 
@@ -150,19 +146,7 @@ public class PartidaMomento {
         if (casilla instanceof Personaje) {
             return new Personaje(casilla.getFila(), casilla.getColumna());
         }
-        if (casilla instanceof Portal portal) {
-            return copiarPortalEnPosicion(portal, portal.getFila(), portal.getColumna());
-        }
         return new SueloComun(casilla.getFila(), casilla.getColumna());
-    }
-
-    private Portal copiarPortalEnPosicion(Portal portal, int fila, int columna) {
-        Portal copia = new Portal(fila, columna);
-        Portal destino = portal.getPortalDestino();
-        if (destino != null) {
-            copia.setPortalDestino(new Portal(destino.getFila(), destino.getColumna()));
-        }
-        return copia;
     }
 
     private boolean posicionValida(int fila, int columna, Tablero tablero) {

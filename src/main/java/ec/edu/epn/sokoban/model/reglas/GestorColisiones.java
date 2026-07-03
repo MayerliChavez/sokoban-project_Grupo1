@@ -1,6 +1,6 @@
 package ec.edu.epn.sokoban.model.reglas;
 
-import ec.edu.epn.sokoban.model.Direccion;
+import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.escenario.*;
 
 

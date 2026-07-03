@@ -1,5 +1,6 @@
 package ec.edu.epn.sokoban.model;
 
+import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Meta;

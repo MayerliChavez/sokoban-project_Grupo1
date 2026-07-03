@@ -35,9 +35,13 @@ public class GestorVentanas {
     public void mostrarJuego(Tablero tablero) {
 
         VentanaPrincipal ventana =
-                new VentanaPrincipal(tablero, this);
+                new VentanaPrincipal(juego, tablero, this);
 
         Scene scene = new Scene(ventana, 1280, 720);
+
+        ControladorTeclado controlador = new ControladorTeclado(juego);
+        controlador.setVentanaPrincipal(ventana, tablero);
+        scene.setOnKeyPressed(controlador);
 
         stage.setTitle("Sokoban");
         stage.setScene(scene);
@@ -54,9 +58,9 @@ public class GestorVentanas {
      */
     public void abrirNivel(int numeroNivel) {
 
-        Tablero tablero = crearTableroPrueba(numeroNivel);
-
-        mostrarJuego(tablero);
+        Nivel nivel = crearNivelPrueba(numeroNivel);
+        juego.seleccionarNivel(nivel);
+        mostrarJuego(juego.getTableroActual());
 
         /*
         Futuro:
@@ -141,48 +145,29 @@ public class GestorVentanas {
        Crea un tablero temporal para pruebas.
        Será reemplazado por la lectura de archivos TXT.
      */
-    private Tablero crearTableroPrueba(int nivel) {
+    private Nivel crearNivelPrueba(int nivel) {
 
         int filas = 8;
         int columnas = 8;
-
-        Tablero tablero = new Tablero(filas, columnas);
+        String[][] mapaDatos = new String[filas][columnas];
 
         for (int fila = 0; fila < filas; fila++) {
-
             for (int columna = 0; columna < columnas; columna++) {
-
                 boolean esPerimetro =
                         fila == 0 ||
                                 fila == filas - 1 ||
                                 columna == 0 ||
                                 columna == columnas - 1;
 
-                if (esPerimetro) {
-
-                    tablero.actualizarCasilla(
-                            fila,
-                            columna,
-                            new Pared(fila, columna));
-
-                } else {
-
-                    tablero.actualizarCasilla(
-                            fila,
-                            columna,
-                            new SueloComun(fila, columna));
-
-                }
-
+                mapaDatos[fila][columna] = esPerimetro ? "#" : " ";
             }
-
         }
 
-        tablero.actualizarCasilla(2, 2, new Caja(2, 2));
-        tablero.actualizarCasilla(2, 4, new Meta(2, 4));
-        tablero.actualizarCasilla(4, 3, new Personaje(4, 3));
+        mapaDatos[2][2] = "$";
+        mapaDatos[2][4] = ".";
+        mapaDatos[4][3] = "@";
 
-        return tablero;
+        return new Nivel(mapaDatos);
 
     }
 

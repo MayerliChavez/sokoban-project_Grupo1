@@ -1,4 +1,4 @@
-package ec.edu.epn.sokoban.model;
+package ec.edu.epn.sokoban;
 
 public enum Direccion {
     ARRIBA(-1, 0),

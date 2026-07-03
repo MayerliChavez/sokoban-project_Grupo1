@@ -1,6 +1,7 @@
 package ec.edu.epn.sokoban.view;
 
 import ec.edu.epn.sokoban.controller.GestorVentanas;
+import ec.edu.epn.sokoban.model.JuegoSokoban;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 
 import javafx.geometry.Insets;
@@ -21,6 +22,7 @@ public class VentanaPrincipal extends BorderPane {
 
     private final PanelTablero panelTablero;
     private final GestorVentanas gestorVentanas;
+    private final JuegoSokoban juego;
 
     private Label lblNivel;
     private Label lblMovimientosSuperior;
@@ -32,9 +34,11 @@ public class VentanaPrincipal extends BorderPane {
     private Button btnMenu;
 
     public VentanaPrincipal(
+            JuegoSokoban juego,
             Tablero tablero,
             GestorVentanas gestorVentanas) {
 
+        this.juego = juego;
         this.gestorVentanas = gestorVentanas;
 
         this.panelTablero = new PanelTablero(tablero);
@@ -55,6 +59,11 @@ public class VentanaPrincipal extends BorderPane {
 
         btnMenu.setOnAction(e ->
                 gestorVentanas.mostrarMenu());
+
+        btnReiniciar.setOnAction(e -> {
+            juego.reiniciarNivelActual();
+            actualizarTablero(juego.getTableroActual());
+        });
 
     }
 
