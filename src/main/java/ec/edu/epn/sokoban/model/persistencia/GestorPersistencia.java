@@ -27,13 +27,7 @@ public class GestorPersistencia {
         this.archivoRuta = archivoRuta;
     }
 
-    public String getArchivoRuta() {
-        return archivoRuta;
-    }
 
-    public void setArchivoRuta(String archivoRuta) {
-        this.archivoRuta = archivoRuta;
-    }
 
     /**
      * Guarda el progreso del usuario en {@code archivoRuta}.

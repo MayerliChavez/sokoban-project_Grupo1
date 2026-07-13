@@ -1,6 +1,5 @@
 package ec.edu.epn.sokoban.model;
 
-import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Meta;
@@ -11,8 +10,10 @@ import ec.edu.epn.sokoban.model.historial.HistorialMovimientos;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.model.historial.PartidaMomento;
 import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
-import ec.edu.epn.sokoban.model.reglas.GestorColisiones;
-import ec.edu.epn.sokoban.model.reglas.ReglasJuego;
+import ec.edu.epn.sokoban.model.reglas.ManejadorColision;
+import ec.edu.epn.sokoban.model.reglas.ManejadorPared;
+import ec.edu.epn.sokoban.model.reglas.ManejadorCaja;
+import ec.edu.epn.sokoban.model.reglas.ManejadorMovimientoBase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,15 +25,19 @@ public class JuegoSokoban {
     private Nivel nivelActual;
     private Tablero tableroActual;
     private HistorialMovimientos historial;
-    private ReglasJuego reglas;
-    private GestorColisiones colisiones;
+    private final ManejadorColision cadenaColisiones;
     private GestorPersistencia persistencia;
 
     public JuegoSokoban(List<Nivel> nivelesDisponibles) {
         this.nivelesDisponibles = nivelesDisponibles != null ? nivelesDisponibles : new ArrayList<>();
         this.historial = new HistorialMovimientos();
-        this.reglas = new ReglasJuego();
-        this.colisiones = new GestorColisiones();
+        ManejadorColision manejadorPared = new ManejadorPared();
+        ManejadorColision manejadorCaja = new ManejadorCaja();
+        ManejadorColision manejadorMovBase = new ManejadorMovimientoBase();
+
+        manejadorPared.setSiguiente(manejadorCaja);
+        manejadorCaja.setSiguiente(manejadorMovBase);
+        this.cadenaColisiones = manejadorPared;
         this.persistencia = new GestorPersistencia("progress.txt");
     }
 
@@ -59,43 +64,8 @@ public class JuegoSokoban {
         this.historial.vaciarHistorial();
     }
 
-    public void procesarEntrada(Direccion dir) {
-        if (dir == null || tableroActual == null) {
-            return;
-        }
-
-        Casilla operario = buscarOperario();
-
-        if (operario == null) {
-            return;
-        }
-
-        if (!reglas.validarMovimiento(operario, dir, tableroActual)) {
-            return;
-        }
-
-        PartidaMomento estadoAnterior = capturarEstadoActual();
-
-        int filaDestino = operario.getFila() + dir.getDeltaFila();
-        int columnaDestino = operario.getColumna() + dir.getDeltaColumna();
-        Casilla destino = tableroActual.obtenerCasilla(filaDestino, columnaDestino);
-
-        boolean movimientoRealizado = false;
-
-        if (destino instanceof Caja) {
-            boolean cajaEmpujada = colisiones.resolverEmpuje(tableroActual, operario, (Caja) destino, dir);
-
-            if (cajaEmpujada) {
-                movimientoRealizado = tableroActual.moverOperario(dir);
-            }
-        } else if (!colisiones.verificarColision(tableroActual, operario, dir)) {
-            movimientoRealizado = tableroActual.moverOperario(dir);
-        }
-
-        if (movimientoRealizado) {
-            historial.registrarEstado(estadoAnterior);
-            verificarYRegistrarVictoria();
-        }
+    public ManejadorColision getCadenaColisiones() {
+        return cadenaColisiones;
     }
 
     // Depende de la implementación de PartidaMomento.restaurarEnTablero().
@@ -127,25 +97,7 @@ public class JuegoSokoban {
         }
     }
 
-    private Casilla buscarOperario() {
-        if (tableroActual == null) {
-            return null;
-        }
-
-        for (int f = 0; f < tableroActual.getFilas(); f++) {
-            for (int c = 0; c < tableroActual.getColumnas(); c++) {
-                Casilla casilla = tableroActual.obtenerCasilla(f, c);
-
-                if (casilla instanceof Personaje) {
-                    return casilla;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private PartidaMomento capturarEstadoActual() {
+    public PartidaMomento capturarEstadoActual() {
         Map<Caja, Casilla> posicionesCajas = new HashMap<>();
         Casilla posicionJugador = null;
 
@@ -166,7 +118,7 @@ public class JuegoSokoban {
         return new PartidaMomento(posicionesCajas, posicionJugador);
     }
 
-    private void verificarYRegistrarVictoria() {
+    public void verificarYRegistrarVictoria() {
         if (nivelActual == null || tableroActual == null) {
             return;
         }
@@ -183,7 +135,7 @@ public class JuegoSokoban {
                     hayMetaPendiente = true;
                 }
 
-                if (casilla instanceof Personaje && ((Personaje) casilla).isEnMeta()) {
+                if (casilla instanceof Personaje && tableroActual.esMeta(f, c)) {
                     hayMetaPendiente = true;
                 }
 

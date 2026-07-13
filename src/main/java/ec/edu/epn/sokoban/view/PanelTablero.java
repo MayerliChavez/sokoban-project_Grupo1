@@ -158,7 +158,7 @@ public class PanelTablero extends GridPane {
             agregarSprite(celda, "CAJA", Color.web("#B8793B"));
 
         } else if (casilla instanceof Personaje) {
-            if (((Personaje) casilla).isEnMeta()) {
+            if (tablero.esMeta(casilla.getFila(), casilla.getColumna())) {
                 agregarSprite(celda, "META", Color.web("#F4D35E"));
             }
             agregarSprite(celda, "JUGADOR", Color.web("#4DA6FF"));

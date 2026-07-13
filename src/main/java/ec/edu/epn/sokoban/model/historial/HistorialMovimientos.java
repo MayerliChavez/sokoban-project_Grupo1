@@ -27,14 +27,7 @@ public class HistorialMovimientos {
         return movimientosContador;
     }
 
-    /**
-     * El contador de movimientos registrados es actualizado.
-     *
-     * @param movimientosContador nuevo valor del contador
-     */
-    public void setMovimientosContador(int movimientosContador) {
-        this.movimientosContador = Math.max(0, movimientosContador);
-    }
+
 
     /**
      * El estado actual del tablero fue registrado en la estructura.

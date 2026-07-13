@@ -2,7 +2,9 @@ package ec.edu.epn.sokoban.controller;
 
 import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.JuegoSokoban;
+import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.historial.PartidaMomento;
 import ec.edu.epn.sokoban.view.VentanaPrincipal;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
@@ -67,13 +69,20 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
                 return; // Ignora cualquier otra tecla
         }
 
-        if (direccionElegida != null) {
-            // Modifica las posiciones lógicas en el modelo
-            this.juego.procesarEntrada(direccionElegida);
+        if (direccionElegida != null && this.tablero != null) {
+            Personaje personaje = this.tablero.getPersonaje();
+            if (personaje != null) {
+                PartidaMomento estadoAnterior = this.juego.capturarEstadoActual();
+                boolean movimientoRealizado = personaje.mover(direccionElegida, this.tablero, this.juego.getCadenaColisiones());
+                if (movimientoRealizado) {
+                    this.juego.getHistorial().registrarEstado(estadoAnterior);
+                    this.juego.verificarYRegistrarVictoria();
+                }
 
-            if (ventanaPrincipal != null && this.tablero != null) {
-                ventanaPrincipal.actualizarTablero(this.tablero);
-                ventanaPrincipal.actualizarEstadisticas();
+                if (ventanaPrincipal != null) {
+                    ventanaPrincipal.actualizarTablero(this.tablero);
+                    ventanaPrincipal.actualizarEstadisticas();
+                }
             }
         }
     }

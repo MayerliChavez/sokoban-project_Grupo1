@@ -1,7 +1,5 @@
 package ec.edu.epn.sokoban.model.escenario;
 
-import ec.edu.epn.sokoban.Direccion;
-
 /**
  * La matriz bidimensional del escenario es gestionada.
  */
@@ -9,6 +7,8 @@ public class Tablero {
     private int filas;
     private int columnas;
     private Casilla[][] celdas;
+    private boolean[][] metas;
+    private Personaje personaje;
 
     /**
      * Un tablero vacio es inicializado.
@@ -28,6 +28,7 @@ public class Tablero {
         this.filas = filas;
         this.columnas = columnas;
         this.celdas = new Casilla[filas][columnas];
+        this.metas = new boolean[filas][columnas];
     }
 
     /**
@@ -40,43 +41,12 @@ public class Tablero {
     }
 
     /**
-     * La cantidad de filas es actualizada y la matriz es reinicializada.
-     *
-     * @param filas nueva cantidad de filas
-     */
-    public void setFilas(int filas) {
-        validarDimensiones(filas, this.columnas);
-        this.filas = filas;
-        this.celdas = new Casilla[filas][columnas];
-    }
-
-    /**
      * La cantidad de columnas es retornada.
      *
      * @return cantidad de columnas del tablero
      */
     public int getColumnas() {
         return columnas;
-    }
-
-    /**
-     * La cantidad de columnas es actualizada y la matriz es reinicializada.
-     *
-     * @param columnas nueva cantidad de columnas
-     */
-    public void setColumnas(int columnas) {
-        validarDimensiones(this.filas, columnas);
-        this.columnas = columnas;
-        this.celdas = new Casilla[filas][columnas];
-    }
-
-    /**
-     * La matriz de casillas es retornada.
-     *
-     * @return matriz bidimensional de casillas
-     */
-    public Casilla[][] getCeldas() {
-        return celdas;
     }
 
     /**
@@ -90,6 +60,7 @@ public class Tablero {
             this.filas = 0;
             this.columnas = 0;
             this.celdas = new Casilla[0][0];
+            this.metas = new boolean[0][0];
             return;
         }
 
@@ -100,7 +71,34 @@ public class Tablero {
         this.filas = nuevasFilas;
         this.columnas = nuevasColumnas;
         this.celdas = celdas;
+        if (this.metas == null || this.metas.length != nuevasFilas
+                || (nuevasFilas > 0 && this.metas[0].length != nuevasColumnas)) {
+            this.metas = new boolean[nuevasFilas][nuevasColumnas];
+        }
         sincronizarCoordenadas();
+    }
+
+    /**
+     * Registra una casilla como una meta permanente.
+     *
+     * @param f fila
+     * @param c columna
+     */
+    public void registrarMeta(int f, int c) {
+        if (estaDentroDelTablero(f, c)) {
+            this.metas[f][c] = true;
+        }
+    }
+
+    /**
+     * Verifica si la coordenada dada es una meta registrada.
+     *
+     * @param f fila
+     * @param c columna
+     * @return true si es una meta, false en caso contrario
+     */
+    public boolean esMeta(int f, int c) {
+        return estaDentroDelTablero(f, c) && metas[f][c];
     }
 
     /**
@@ -132,48 +130,15 @@ public class Tablero {
         if (nuevaCasilla != null) {
             nuevaCasilla.setFila(f);
             nuevaCasilla.setColumna(c);
+            if (nuevaCasilla instanceof Meta) {
+                this.metas[f][c] = true;
+            }
+            if (nuevaCasilla instanceof Personaje) {
+                this.personaje = (Personaje) nuevaCasilla;
+            }
         }
 
         celdas[f][c] = nuevaCasilla;
-    }
-
-    /**
-     * El personaje es desplazado en una direccion cuando la casilla destino es
-     * transitable.
-     *
-     * @param d direccion de movimiento solicitada
-     * @return true si el movimiento fue aplicado; false en caso contrario
-     */
-    public boolean moverOperario(Direccion d) {
-        if (d == null) {
-            return false;
-        }
-
-        Personaje personaje = buscarPersonaje();
-        if (personaje == null) {
-            return false;
-        }
-
-        int filaOrigen = personaje.getFila();
-        int columnaOrigen = personaje.getColumna();
-        int filaDestino = filaOrigen + d.getDeltaFila();
-        int columnaDestino = columnaOrigen + d.getDeltaColumna();
-
-        if (!esTransitable(filaDestino, columnaDestino)) {
-            return false;
-        }
-
-        Casilla destino = obtenerCasilla(filaDestino, columnaDestino);
-        boolean destinoEsMeta = (destino instanceof Meta);
-
-        Casilla casillaLiberada = personaje.isEnMeta()
-                ? new Meta(filaOrigen, columnaOrigen)
-                : new SueloComun(filaOrigen, columnaOrigen);
-
-        actualizarCasilla(filaOrigen, columnaOrigen, casillaLiberada);
-        personaje.setEnMeta(destinoEsMeta);
-        actualizarCasilla(filaDestino, columnaDestino, personaje);
-        return true;
     }
 
     /**
@@ -193,16 +158,8 @@ public class Tablero {
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
     }
 
-    private Personaje buscarPersonaje() {
-        for (int fila = 0; fila < filas; fila++) {
-            for (int columna = 0; columna < columnas; columna++) {
-                Casilla casilla = celdas[fila][columna];
-                if (casilla instanceof Personaje personaje) {
-                    return personaje;
-                }
-            }
-        }
-        return null;
+    public Personaje getPersonaje() {
+        return personaje;
     }
 
     private void sincronizarCoordenadas() {
@@ -212,6 +169,9 @@ public class Tablero {
                 if (casilla != null) {
                     casilla.setFila(fila);
                     casilla.setColumna(columna);
+                    if (casilla instanceof Personaje) {
+                        this.personaje = (Personaje) casilla;
+                    }
                 }
             }
         }

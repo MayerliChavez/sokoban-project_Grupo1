@@ -28,7 +28,7 @@ public class FabricaNiveles {
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 String simbolo = mapaDatos[f][c];
-                Casilla casilla = crearCasilla(simbolo, f, c);
+                Casilla casilla = crearCasilla(simbolo, f, c, tablero);
                 tablero.actualizarCasilla(f, c, casilla);
             }
         }
@@ -36,7 +36,7 @@ public class FabricaNiveles {
         return tablero;
     }
 
-    private Casilla crearCasilla(String simbolo, int fila, int columna) {
+    private Casilla crearCasilla(String simbolo, int fila, int columna, Tablero tablero) {
         if (simbolo == null) {
             return new SueloComun(fila, columna);
         }
@@ -49,6 +49,7 @@ public class FabricaNiveles {
                 return new SueloComun(fila, columna);
 
             case ".":
+                tablero.registrarMeta(fila, columna);
                 return new Meta(fila, columna);
 
             case "$":
@@ -57,15 +58,15 @@ public class FabricaNiveles {
             case "*":
                 Caja cajaEnMeta = new Caja(fila, columna);
                 cajaEnMeta.setEnMeta(true);
+                tablero.registrarMeta(fila, columna);
                 return cajaEnMeta;
 
             case "@":
                 return new Personaje(fila, columna);
 
             case "+":
-                Personaje personajeEnMeta = new Personaje(fila, columna);
-                personajeEnMeta.setEnMeta(true);
-                return personajeEnMeta;
+                tablero.registrarMeta(fila, columna);
+                return new Personaje(fila, columna);
 
             default:
                 return new SueloComun(fila, columna);

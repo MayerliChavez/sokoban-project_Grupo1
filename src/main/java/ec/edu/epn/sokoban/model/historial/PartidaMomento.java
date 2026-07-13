@@ -29,23 +29,7 @@ public class PartidaMomento {
         this.posicionJugador = copiarCasilla(posicionJugador);
     }
 
-    /**
-     * Una copia profunda del mapa de posiciones de cajas es retornada.
-     *
-     * @return copia profunda del mapa de cajas y posiciones
-     */
-    public Map<Caja, Casilla> getPosicionesCajas() {
-        return Collections.unmodifiableMap(copiarPosicionesCajas(posicionesCajas));
-    }
 
-    /**
-     * Una copia de la posicion del jugador es retornada.
-     *
-     * @return copia de la posicion del jugador
-     */
-    public Casilla getPosicionJugador() {
-        return copiarCasilla(posicionJugador);
-    }
 
     /**
      * El estado almacenado fue restaurado en el tablero mediante reemplazo atomico.
@@ -79,9 +63,6 @@ public class PartidaMomento {
         int filaJugador = posicionJugador.getFila();
         int columnaJugador = posicionJugador.getColumna();
         Personaje personajeRestaurado = new Personaje(filaJugador, columnaJugador);
-        if (posicionJugador instanceof Personaje) {
-            personajeRestaurado.setEnMeta(((Personaje) posicionJugador).isEnMeta());
-        }
         matrizRestaurada[filaJugador][columnaJugador] = personajeRestaurado;
 
         t.setCeldas(matrizRestaurada);
@@ -106,21 +87,21 @@ public class PartidaMomento {
         for (int fila = 0; fila < tablero.getFilas(); fila++) {
             for (int columna = 0; columna < tablero.getColumnas(); columna++) {
                 Casilla casilla = tablero.obtenerCasilla(fila, columna);
-                copia[fila][columna] = copiarComoTerrenoBase(casilla, fila, columna);
+                copia[fila][columna] = copiarComoTerrenoBase(tablero, casilla, fila, columna);
             }
         }
         return copia;
     }
 
-    private Casilla copiarComoTerrenoBase(Casilla casilla, int fila, int columna) {
-        if (casilla instanceof Meta meta) {
-            return new Meta(fila, columna, meta.isSatisfecha());
+    private Casilla copiarComoTerrenoBase(Tablero tablero, Casilla casilla, int fila, int columna) {
+        if (casilla instanceof Meta) {
+            return new Meta(fila, columna);
         }
         if (casilla instanceof Caja caja && caja.isEnMeta()) {
-            return new Meta(fila, columna, true);
+            return new Meta(fila, columna);
         }
-        if (casilla instanceof Personaje personaje && personaje.isEnMeta()) {
-            return new Meta(fila, columna, false);
+        if (casilla instanceof Personaje && tablero.esMeta(fila, columna)) {
+            return new Meta(fila, columna);
         }
         if (casilla instanceof Pared) {
             return new Pared(fila, columna);
@@ -147,16 +128,14 @@ public class PartidaMomento {
         if (casilla instanceof Caja caja) {
             return new Caja(caja.getFila(), caja.getColumna(), caja.isEnMeta());
         }
-        if (casilla instanceof Meta meta) {
-            return new Meta(meta.getFila(), meta.getColumna(), meta.isSatisfecha());
+        if (casilla instanceof Meta) {
+            return new Meta(casilla.getFila(), casilla.getColumna());
         }
         if (casilla instanceof Pared) {
             return new Pared(casilla.getFila(), casilla.getColumna());
         }
-        if (casilla instanceof Personaje personaje) {
-            Personaje copia = new Personaje(personaje.getFila(), personaje.getColumna());
-            copia.setEnMeta(personaje.isEnMeta());
-            return copia;
+        if (casilla instanceof Personaje) {
+            return new Personaje(casilla.getFila(), casilla.getColumna());
         }
         return new SueloComun(casilla.getFila(), casilla.getColumna());
     }

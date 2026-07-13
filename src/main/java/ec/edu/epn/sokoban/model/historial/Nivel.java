@@ -7,12 +7,7 @@ public class Nivel {
     private boolean completado;
     private String[][] mapaDatos;
 
-    /**
-     * Un nivel vacio es inicializado.
-     */
-    public Nivel() {
-        this(new String[0][0], false);
-    }
+
 
     /**
      * Un nivel es inicializado como no completado.
@@ -61,14 +56,7 @@ public class Nivel {
         return copiarMatriz(mapaDatos);
     }
 
-    /**
-     * La matriz inicial de diseno es actualizada mediante copia defensiva.
-     *
-     * @param mapaDatos nueva matriz inicial de diseno
-     */
-    public void setMapaDatos(String[][] mapaDatos) {
-        this.mapaDatos = copiarMatriz(mapaDatos);
-    }
+
 
     /**
      * El nivel fue marcado como completado mediante una actualizacion atomica.
