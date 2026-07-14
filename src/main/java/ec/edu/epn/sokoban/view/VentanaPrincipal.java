@@ -69,7 +69,6 @@ public class VentanaPrincipal extends BorderPane {
             Tablero nuevoTablero = juego.getTableroActual();
             actualizarTablero(nuevoTablero);
             if (controladorTeclado != null) {
-                controladorTeclado.setPersonaje(nuevoTablero.getPersonaje());
                 controladorTeclado.setTablero(nuevoTablero);
             }
             actualizarEstadisticas();
