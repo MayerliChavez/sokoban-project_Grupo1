@@ -53,8 +53,15 @@ public class PartidaMomento {
         }
 
         // 3. Restaurar personaje en su posición
-        Personaje personajeRestaurado = new Personaje(posicionJugador.getFila(), posicionJugador.getColumna());
-        t.actualizarCasilla(posicionJugador.getFila(), posicionJugador.getColumna(), personajeRestaurado);
+        Personaje personajeExistente = t.getPersonaje();
+        if (personajeExistente != null) {
+            personajeExistente.setFila(posicionJugador.getFila());
+            personajeExistente.setColumna(posicionJugador.getColumna());
+            t.actualizarCasilla(posicionJugador.getFila(), posicionJugador.getColumna(), personajeExistente);
+        } else {
+            Personaje personajeRestaurado = new Personaje(posicionJugador.getFila(), posicionJugador.getColumna());
+            t.actualizarCasilla(posicionJugador.getFila(), posicionJugador.getColumna(), personajeRestaurado);
+        }
     }
 
     private Map<Caja, Casilla> copiarPosicionesCajas(Map<Caja, Casilla> origen) {
