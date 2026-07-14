@@ -18,100 +18,27 @@ public class Tablero extends Casilla {
      * Un tablero vacio es inicializado.
      */
     public Tablero() {
-        this(0, 0);
+        this(new Casilla[0][0], new boolean[0][0], null);
     }
 
     /**
-     * Un tablero es inicializado con dimensiones definidas.
+     * Un tablero es inicializado con su matriz de celdas, metas y personaje.
      *
-     * @param filas    cantidad de filas del tablero
-     * @param columnas cantidad de columnas del tablero
+     * @param celdas    matriz bidimensional de casillas
+     * @param metas     matriz de metas del tablero
+     * @param personaje personaje ubicado en el tablero
      */
-    public Tablero(int filas, int columnas) {
+    public Tablero(Casilla[][] celdas, boolean[][] metas, Personaje personaje) {
         super(0, 0);
-        validarDimensiones(filas, columnas);
-        this.filas = filas;
-        this.columnas = columnas;
-        this.celdas = new Casilla[filas][columnas];
-        this.metas = new boolean[filas][columnas];
+        this.celdas = celdas != null ? celdas : new Casilla[0][0];
+        this.metas = metas != null ? metas : new boolean[0][0];
+        this.filas = this.celdas.length;
+        this.columnas = this.filas > 0 ? this.celdas[0].length : 0;
+        this.personaje = personaje;
     }
 
     // =========================================================================
-    // 2. Métodos ejecutados durante la creación y carga del mapa
-    // =========================================================================
-
-    /**
-     * La matriz de casillas es actualizada y sus coordenadas internas son
-     * sincronizadas.
-     *
-     * @param celdas nueva matriz bidimensional de casillas
-     */
-    public void setCeldas(Casilla[][] celdas) {
-        if (celdas == null) {
-            this.filas = 0;
-            this.columnas = 0;
-            this.celdas = new Casilla[0][0];
-            this.metas = new boolean[0][0];
-            return;
-        }
-
-        int nuevasFilas = celdas.length;
-        int nuevasColumnas = nuevasFilas == 0 ? 0 : celdas[0].length;
-        validarMatrizRectangular(celdas, nuevasColumnas);
-
-        this.filas = nuevasFilas;
-        this.columnas = nuevasColumnas;
-        this.celdas = celdas;
-        if (this.metas == null || this.metas.length != nuevasFilas
-                || (nuevasFilas > 0 && this.metas[0].length != nuevasColumnas)) {
-            this.metas = new boolean[nuevasFilas][nuevasColumnas];
-        }
-        sincronizarCoordenadas();
-    }
-
-    /**
-     * Registra una casilla como una meta permanente.
-     *
-     * @param f fila
-     * @param c columna
-     */
-    public void registrarMeta(int f, int c) {
-        if (estaDentroDelTablero(f, c)) {
-            this.metas[f][c] = true;
-        }
-    }
-
-    private void sincronizarCoordenadas() {
-        for (int fila = 0; fila < filas; fila++) {
-            for (int columna = 0; columna < columnas; columna++) {
-                Casilla casilla = celdas[fila][columna];
-                if (casilla != null) {
-                    casilla.setFila(fila);
-                    casilla.setColumna(columna);
-                    if (casilla instanceof Personaje) {
-                        this.personaje = (Personaje) casilla;
-                    }
-                }
-            }
-        }
-    }
-
-    private void validarDimensiones(int filas, int columnas) {
-        if (filas < 0 || columnas < 0) {
-            throw new IllegalArgumentException("Las dimensiones del tablero no pueden ser negativas.");
-        }
-    }
-
-    private void validarMatrizRectangular(Casilla[][] matriz, int columnasEsperadas) {
-        for (Casilla[] fila : matriz) {
-            if (fila == null || fila.length != columnasEsperadas) {
-                throw new IllegalArgumentException("La matriz de casillas debe ser rectangular.");
-            }
-        }
-    }
-
-    // =========================================================================
-    // 3. Métodos ejecutados durante el juego y consultas de estado
+    // 2. Métodos ejecutados durante el juego y consultas de estado
     // =========================================================================
 
     /**

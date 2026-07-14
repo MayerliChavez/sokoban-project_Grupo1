@@ -8,6 +8,7 @@ import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.CajaComun;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
+import ec.edu.epn.sokoban.model.escenario.CargadorTablero;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 
 public class FabricaNiveles {
@@ -24,20 +25,20 @@ public class FabricaNiveles {
         int filas = mapaDatos.length;
         int columnas = (filas > 0) ? mapaDatos[0].length : 0;
 
-        Tablero tablero = new Tablero(filas, columnas);
+        Casilla[][] celdas = new Casilla[filas][columnas];
+        boolean[][] metas = new boolean[filas][columnas];
 
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 String simbolo = mapaDatos[f][c];
-                Casilla casilla = crearCasilla(simbolo, f, c, tablero);
-                tablero.actualizarCasilla(f, c, casilla);
+                celdas[f][c] = crearCasilla(simbolo, f, c, metas);
             }
         }
 
-        return tablero;
+        return CargadorTablero.cargar(celdas, metas);
     }
 
-    private Casilla crearCasilla(String simbolo, int fila, int columna, Tablero tablero) {
+    private Casilla crearCasilla(String simbolo, int fila, int columna, boolean[][] metas) {
         if (simbolo == null) {
             return new SueloComun(fila, columna);
         }
@@ -50,7 +51,7 @@ public class FabricaNiveles {
                 return new SueloComun(fila, columna);
 
             case ".":
-                tablero.registrarMeta(fila, columna);
+                metas[fila][columna] = true;
                 return new Meta(fila, columna);
 
             case "$":
@@ -59,14 +60,14 @@ public class FabricaNiveles {
             case "*":
                 Caja cajaEnMeta = new CajaComun(fila, columna);
                 cajaEnMeta.setEnMeta(true);
-                tablero.registrarMeta(fila, columna);
+                metas[fila][columna] = true;
                 return cajaEnMeta;
 
             case "@":
                 return new Personaje(fila, columna);
 
             case "+":
-                tablero.registrarMeta(fila, columna);
+                metas[fila][columna] = true;
                 return new Personaje(fila, columna);
 
             default:

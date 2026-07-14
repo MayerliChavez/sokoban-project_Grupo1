@@ -27,16 +27,19 @@ classDiagram
         -CasillaMatrix celdas
         -booleanMatrix metas
         -Personaje personaje
-        +Tablero(int filas, int columnas)
+        +Tablero(CasillaMatrix celdas, booleanMatrix metas, Personaje personaje)
         +getFilas() int
         +getColumnas() int
-        +registrarMeta(int f, int c) void
         +esMeta(int f, int c) bool
         +obtenerCasilla(int f, int c) Casilla
         +actualizarCasilla(int f, int c, Casilla nuevaCasilla) void
         +esTransitable() bool
         +esTransitable(int f, int c) bool
         +getPersonaje() Personaje
+    }
+
+    class CargadorTablero {
+        +cargar(CasillaMatrix celdas, booleanMatrix metas)$ Tablero
     }
 
     class Casilla {
@@ -217,4 +220,7 @@ classDiagram
     HistorialMovimientos o--> PartidaMomento : historial
     ControladorTeclado --> Personaje : personaje
     ControladorTeclado --> Tablero : tablero
+    FabricaNiveles ..> CargadorTablero : uses
+    CargadorTablero ..> Tablero : creates
+
 ```
