@@ -1,6 +1,10 @@
-# Diagrama de Clases - Carpeta `model`
+# Diagrama de Clases - Carpeta `model` (Refactorizado con Visitor)
 
-Este documento contiene el diagrama de clases Mermaid actualizado que representa la estructura física de la carpeta `model` del proyecto Sokoban.
+Este documento contiene el diagrama de clases Mermaid actualizado que representa la arquitectura física y lógica de la carpeta `model` del proyecto Sokoban.
+
+Se han incorporado:
+1. **Interfaces directas**: `Suelo`, `Meta` y `Tablero` implementan directamente `Transitable`, mientras que `Caja` implementa directamente `Empujable`.
+2. **Patrón Visitor (`Dibujador<T>`)**: Las casillas delegan la renderización a un objeto gráfico genérico. Esto independiza por completo el Modelo (lógica de negocio) de la vista (JavaFX).
 
 ```mermaid
 classDiagram
@@ -33,7 +37,6 @@ classDiagram
         +esMeta(int f, int c) bool
         +obtenerCasilla(int f, int c) Casilla
         +actualizarCasilla(int f, int c, Casilla nuevaCasilla) void
-        +esTransitable() bool
         +esTransitable(int f, int c) bool
         +getPersonaje() Personaje
     }
@@ -50,58 +53,53 @@ classDiagram
         +setFila(int fila) void
         +getColumna() int
         +setColumna(int columna) void
-        +esTransitable()* bool
+        +dibujar(Dibujador dibujador, T contenedor, int tamCelda)* void
+    }
+
+    class Transitable {
+        <<interface>>
+        +esTransitable() bool
+    }
+
+    class Empujable {
+        <<interface>>
         +esEmpujable() bool
+    }
+
+    class Dibujador {
+        <<interface>>
+        +dibujarPared(Pared pared, T contenedor, int tamCelda) void
+        +dibujarCaja(Caja caja, T contenedor, int tamCelda) void
+        +dibujarPersonaje(Personaje personaje, T contenedor, int tamCelda) void
+        +dibujarMeta(Meta meta, T contenedor, int tamCelda) void
+        +dibujarSuelo(Suelo suelo, T contenedor, int tamCelda) void
     }
 
     class Personaje {
         +Personaje(int fila, int columna)
         +mover(Direccion d, Tablero t) bool
-        +mover(Direccion d, Tablero t, ManejadorColision cadenaColisiones) bool
-        +esTransitable() bool
+        +mover(Direccion d, Tablero t, GestorColisiones gestor) bool
     }
 
     class Caja {
-        <<abstract>>
         -bool enMeta
         +Caja(int fila, int columna)
         +Caja(int fila, int columna, boolean enMeta)
-        +mover(Direccion d, Tablero t)* bool
+        +mover(Direccion d, Tablero t) bool
         +isEnMeta() bool
         +setEnMeta(boolean enMeta) void
-        +esTransitable() bool
-        +esEmpujable() bool
-    }
-
-    class CajaComun {
-        +CajaComun(int fila, int columna)
-        +CajaComun(int fila, int columna, bool enMeta)
-        +mover(Direccion d, Tablero t) bool
     }
 
     class Pared {
-        <<abstract>>
         +Pared(int f, int c)
-    }
-
-    class ParedComun {
-        +ParedComun(int f, int c)
-        +esTransitable() bool
     }
 
     class Meta {
         +Meta(int f, int c)
-        +esTransitable() bool
     }
 
     class Suelo {
-        <<abstract>>
         +Suelo(int f, int c)
-    }
-
-    class SueloComun {
-        +SueloComun(int f, int c)
-        +esTransitable() bool
     }
 
     class FabricaNiveles {
@@ -143,47 +141,35 @@ classDiagram
         +cargarNivelDesdeRecursos(int nivelId) Nivel
     }
 
-    class ManejadorColision {
-        <<interface>>
-        +setSiguiente(ManejadorColision siguiente) void
-        +procesarMovimiento(Tablero tablero, Casilla origen, Direccion dir) bool
-    }
-
-    class ManejadorPared {
-        -ManejadorColision siguiente
-        +setSiguiente(ManejadorColision siguiente) void
-        +procesarMovimiento(Tablero tablero, Casilla origen, Direccion dir) bool
-    }
-
-    class ManejadorCaja {
-        -ManejadorColision siguiente
-        +setSiguiente(ManejadorColision siguiente) void
-        +procesarMovimiento(Tablero tablero, Casilla origen, Direccion dir) bool
-    }
-
-    class ManejadorMovimientoBase {
-        -ManejadorColision siguiente
-        +setSiguiente(ManejadorColision siguiente) void
-        +procesarMovimiento(Tablero tablero, Casilla origen, Direccion dir) bool
+    class GestorColisiones {
+        +procesarMovimiento(Tablero tablero, Personaje personaje, Direccion dir) bool
     }
 
     class ReglasJuego {
-        -ManejadorColision cadenaColisiones
+        -GestorColisiones gestorColisiones
         +ReglasJuego()
-        +getCadenaColisiones() ManejadorColision
+        +getGestorColisiones() GestorColisiones
         +verificarYRegistrarVictoria(Nivel nivelActual, Tablero tableroActual, List nivelesDisponibles, GestorPersistencia persistencia) void
+    }
+
+    class PanelTablero {
+        +dibujarPared(Pared pared, StackPane contenedor, int tamCelda) void
+        +dibujarCaja(Caja caja, StackPane contenedor, int tamCelda) void
+        +dibujarPersonaje(Personaje personaje, StackPane contenedor, int tamCelda) void
+        +dibujarMeta(Meta meta, StackPane contenedor, int tamCelda) void
+        +dibujarSuelo(Suelo suelo, StackPane contenedor, int tamCelda) void
     }
 
     class ControladorTeclado {
         -Personaje personaje
         -Tablero tablero
-        -ManejadorColision cadenaColisiones
+        -GestorColisiones gestorColisiones
         -VentanaPrincipal ventanaPrincipal
         -Runnable antesDeMover
         -Runnable despuesDeMover
         -Runnable accionDeshacer
         -BooleanSupplier checkNivelCompletado
-        +ControladorTeclado(Personaje personaje, Tablero tablero, ManejadorColision cadenaColisiones)
+        +ControladorTeclado(Personaje personaje, Tablero tablero, GestorColisiones gestor)
         +setPersonaje(Personaje personaje) void
         +setTablero(Tablero tablero) void
         +setVentanaPrincipal(VentanaPrincipal vp) void
@@ -194,20 +180,17 @@ classDiagram
         +handle(KeyEvent evento) void
     }
 
-    ManejadorColision <|.. ManejadorPared : implements
-    ManejadorColision <|.. ManejadorCaja : implements
-    ManejadorColision <|.. ManejadorMovimientoBase : implements
-    ManejadorColision --> ManejadorColision : siguiente
-
     Casilla <|-- Personaje : extends
     Casilla <|-- Caja : extends
     Casilla <|-- Pared : extends
     Casilla <|-- Meta : extends
     Casilla <|-- Suelo : extends
     Casilla <|-- Tablero : extends
-    Suelo <|-- SueloComun : extends
-    Caja <|-- CajaComun : extends
-    Pared <|-- ParedComun : extends
+
+    Transitable <|.. Suelo : implements
+    Transitable <|.. Meta : implements
+    Transitable <|.. Tablero : implements
+    Empujable <|.. Caja : implements
 
     Tablero *--> Casilla : celdas
     Tablero --> Personaje : personaje
@@ -216,11 +199,12 @@ classDiagram
     JuegoSokoban --> HistorialMovimientos : historial
     JuegoSokoban --> GestorPersistencia : persistencia
     JuegoSokoban --> Nivel : nivelActual
-    ReglasJuego --> ManejadorColision : cadenaColisiones
+    ReglasJuego --> GestorColisiones : gestorColisiones
     HistorialMovimientos o--> PartidaMomento : historial
     ControladorTeclado --> Personaje : personaje
     ControladorTeclado --> Tablero : tablero
+    ControladorTeclado --> GestorColisiones : gestorColisiones
     FabricaNiveles ..> CargadorTablero : uses
     CargadorTablero ..> Tablero : creates
-
+    PanelTablero ..|> Dibujador : implements
 ```

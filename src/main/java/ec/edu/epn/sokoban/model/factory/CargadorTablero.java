@@ -1,4 +1,9 @@
-package ec.edu.epn.sokoban.model.escenario;
+package ec.edu.epn.sokoban.model.factory;
+
+import ec.edu.epn.sokoban.model.escenario.Casilla;
+import ec.edu.epn.sokoban.model.escenario.Meta;
+import ec.edu.epn.sokoban.model.escenario.Personaje;
+import ec.edu.epn.sokoban.model.escenario.Tablero;
 
 /**
  * Clase encargada de validar, estructurar e inicializar un tablero.

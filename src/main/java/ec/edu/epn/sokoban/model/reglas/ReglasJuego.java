@@ -10,23 +10,17 @@ import java.util.List;
 
 /**
  * Clase encargada de definir las reglas de negocio generales del juego,
- * incluyendo la cadena de responsabilidad para las colisiones y la verificación de victoria.
+ * incluyendo el gestor de colisiones único y la verificación de victoria.
  */
 public class ReglasJuego {
-    private final ManejadorColision cadenaColisiones;
+    private final GestorColisiones gestorColisiones;
 
     public ReglasJuego() {
-        ManejadorColision manejadorPared = new ManejadorPared();
-        ManejadorColision manejadorCaja = new ManejadorCaja();
-        ManejadorColision manejadorMovBase = new ManejadorMovimientoBase();
-
-        manejadorPared.setSiguiente(manejadorCaja);
-        manejadorCaja.setSiguiente(manejadorMovBase);
-        this.cadenaColisiones = manejadorPared;
+        this.gestorColisiones = new GestorColisiones();
     }
 
-    public ManejadorColision getCadenaColisiones() {
-        return cadenaColisiones;
+    public GestorColisiones getGestorColisiones() {
+        return gestorColisiones;
     }
 
     /**

@@ -43,7 +43,7 @@ public class GestorVentanas {
         ControladorTeclado controlador = new ControladorTeclado(
             tablero.getPersonaje(), 
             tablero, 
-            juego.getReglasJuego().getCadenaColisiones()
+            juego.getReglasJuego().getGestorColisiones()
         );
         controlador.setVentanaPrincipal(ventana);
         controlador.setCheckNivelCompletado(() -> juego.getNivelActual() != null && juego.getNivelActual().isCompletado());

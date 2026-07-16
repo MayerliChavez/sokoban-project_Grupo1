@@ -1,12 +1,7 @@
 package ec.edu.epn.sokoban.view;
 
-import ec.edu.epn.sokoban.model.escenario.Caja;
-import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Meta;
-import ec.edu.epn.sokoban.model.escenario.Pared;
-import ec.edu.epn.sokoban.model.escenario.Personaje;
-import ec.edu.epn.sokoban.model.escenario.SueloComun;
-import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.escenario.*;
+import ec.edu.epn.sokoban.model.interfaces.Dibujador;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,7 +18,11 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PanelTablero extends GridPane {
+/**
+ * Panel visual que representa el tablero de juego en la UI de JavaFX.
+ * Implementa la interfaz Dibujador (Visitor) para aislar la visualización de los modelos.
+ */
+public class PanelTablero extends GridPane implements Dibujador<StackPane> {
 
     private Tablero tablero;
 
@@ -132,45 +131,19 @@ public class PanelTablero extends GridPane {
         for (int fila = 0; fila < tablero.getFilas(); fila++) {
             for (int columna = 0; columna < tablero.getColumnas(); columna++) {
                 Casilla casilla = tablero.obtenerCasilla(fila, columna);
-                StackPane celdaVisual = crearCeldaVisual(casilla);
-                add(celdaVisual, columna, fila);
+                StackPane celda = new StackPane();
+                celda.setAlignment(Pos.CENTER);
+                celda.setPrefSize(tamCelda, tamCelda);
+                celda.setMinSize(tamCelda, tamCelda);
+                celda.setMaxSize(tamCelda, tamCelda);
+
+                if (casilla != null) {
+                    casilla.dibujar(this, celda, tamCelda);
+                }
+
+                add(celda, columna, fila);
             }
         }
-    }
-
-    private StackPane crearCeldaVisual(Casilla casilla) {
-        StackPane celda = new StackPane();
-        celda.setAlignment(Pos.CENTER);
-        celda.setPrefSize(tamCelda, tamCelda);
-        celda.setMinSize(tamCelda, tamCelda);
-        celda.setMaxSize(tamCelda, tamCelda);
-
-        agregarSueloBase(celda);
-
-        if (casilla instanceof Pared) {
-            celda.getChildren().clear();
-            agregarSprite(celda, "PARED", Color.web("#3A3A3A"));
-
-        } else if (casilla instanceof Caja) {
-            if (((Caja) casilla).isEnMeta()) {
-                agregarSprite(celda, "META", Color.web("#F4D35E"));
-            }
-            agregarSprite(celda, "CAJA", Color.web("#B8793B"));
-
-        } else if (casilla instanceof Personaje) {
-            if (tablero.esMeta(casilla.getFila(), casilla.getColumna())) {
-                agregarSprite(celda, "META", Color.web("#F4D35E"));
-            }
-            agregarSprite(celda, "JUGADOR", Color.web("#4DA6FF"));
-
-        } else if (casilla instanceof Meta) {
-            agregarSprite(celda, "META", Color.web("#F4D35E"));
-
-        } else if (casilla instanceof SueloComun) {
-            // Solo queda el suelo base.
-        }
-
-        return celda;
     }
 
     private void agregarSueloBase(StackPane celda) {
@@ -243,5 +216,50 @@ public class PanelTablero extends GridPane {
         rect.setEffect(sombraInterna);
 
         return rect;
+    }
+
+    // =========================================================================
+    // Métodos del patrón Visitor (Dibujador)
+    // =========================================================================
+
+    @Override
+    public void dibujarPared(Pared pared, StackPane celda, int tamCelda) {
+        celda.getChildren().clear();
+        Image sprite = sprites.get("PARED");
+        if (sprite != null) {
+            ImageView imageView = crearImageView(sprite, tamCelda);
+            celda.getChildren().add(imageView);
+        } else {
+            celda.getChildren().add(crearFondoRespaldo(Color.web("#3A3A3A")));
+        }
+    }
+
+    @Override
+    public void dibujarCaja(Caja caja, StackPane celda, int tamCelda) {
+        agregarSueloBase(celda);
+        if (caja.isEnMeta()) {
+            agregarSprite(celda, "META", Color.web("#F4D35E"));
+        }
+        agregarSprite(celda, "CAJA", Color.web("#B8793B"));
+    }
+
+    @Override
+    public void dibujarPersonaje(Personaje personaje, StackPane celda, int tamCelda) {
+        agregarSueloBase(celda);
+        if (tablero != null && tablero.esMeta(personaje.getFila(), personaje.getColumna())) {
+            agregarSprite(celda, "META", Color.web("#F4D35E"));
+        }
+        agregarSprite(celda, "JUGADOR", Color.web("#4DA6FF"));
+    }
+
+    @Override
+    public void dibujarMeta(Meta meta, StackPane celda, int tamCelda) {
+        agregarSueloBase(celda);
+        agregarSprite(celda, "META", Color.web("#F4D35E"));
+    }
+
+    @Override
+    public void dibujarSuelo(Suelo suelo, StackPane celda, int tamCelda) {
+        agregarSueloBase(celda);
     }
 }

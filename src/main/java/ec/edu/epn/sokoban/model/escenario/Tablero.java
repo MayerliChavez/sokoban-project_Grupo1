@@ -1,9 +1,12 @@
 package ec.edu.epn.sokoban.model.escenario;
 
+import ec.edu.epn.sokoban.model.interfaces.Transitable;
+import ec.edu.epn.sokoban.model.interfaces.Dibujador;
+
 /**
  * La matriz bidimensional del escenario es gestionada.
  */
-public class Tablero extends Casilla {
+public class Tablero extends Casilla implements Transitable {
     private int filas;
     private int columnas;
     private Casilla[][] celdas;
@@ -120,12 +123,7 @@ public class Tablero extends Casilla {
      */
     public boolean esTransitable(int f, int c) {
         Casilla casilla = obtenerCasilla(f, c);
-        return casilla != null && casilla.esTransitable();
-    }
-
-    @Override
-    public boolean esTransitable() {
-        return true;
+        return casilla != null && casilla instanceof Transitable && ((Transitable) casilla).esTransitable();
     }
 
     private boolean estaDentroDelTablero(int fila, int columna) {
@@ -134,5 +132,15 @@ public class Tablero extends Casilla {
 
     public Personaje getPersonaje() {
         return personaje;
+    }
+
+    @Override
+    public boolean esTransitable() {
+        return true;
+    }
+
+    @Override
+    public <T> void dibujar(Dibujador<T> dibujador, T contenedor, int tamCelda) {
+        // El tablero en sí no se dibuja como una celda individual.
     }
 }

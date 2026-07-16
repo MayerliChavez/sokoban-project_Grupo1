@@ -2,15 +2,16 @@ package ec.edu.epn.sokoban.model.factory;
 
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.ParedComun;
-import ec.edu.epn.sokoban.model.escenario.SueloComun;
+import ec.edu.epn.sokoban.model.escenario.Pared;
+import ec.edu.epn.sokoban.model.escenario.Suelo;
 import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Caja;
-import ec.edu.epn.sokoban.model.escenario.CajaComun;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
-import ec.edu.epn.sokoban.model.escenario.CargadorTablero;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 
+/**
+ * Fábrica encargada de instanciar y armar el tablero a partir del mapa de datos del nivel.
+ */
 public class FabricaNiveles {
 
     public FabricaNiveles() {
@@ -40,25 +41,25 @@ public class FabricaNiveles {
 
     private Casilla crearCasilla(String simbolo, int fila, int columna, boolean[][] metas) {
         if (simbolo == null) {
-            return new SueloComun(fila, columna);
+            return new Suelo(fila, columna);
         }
 
         switch (simbolo) {
             case "#":
-                return new ParedComun(fila, columna);
+                return new Pared(fila, columna);
 
             case " ":
-                return new SueloComun(fila, columna);
+                return new Suelo(fila, columna);
 
             case ".":
                 metas[fila][columna] = true;
                 return new Meta(fila, columna);
 
             case "$":
-                return new CajaComun(fila, columna);
+                return new Caja(fila, columna);
 
             case "*":
-                Caja cajaEnMeta = new CajaComun(fila, columna);
+                Caja cajaEnMeta = new Caja(fila, columna);
                 cajaEnMeta.setEnMeta(true);
                 metas[fila][columna] = true;
                 return cajaEnMeta;
@@ -71,7 +72,7 @@ public class FabricaNiveles {
                 return new Personaje(fila, columna);
 
             default:
-                return new SueloComun(fila, columna);
+                return new Suelo(fila, columna);
         }
     }
 }

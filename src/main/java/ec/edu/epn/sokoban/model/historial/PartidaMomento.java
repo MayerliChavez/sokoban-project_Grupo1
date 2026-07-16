@@ -1,11 +1,10 @@
 package ec.edu.epn.sokoban.model.historial;
 
 import ec.edu.epn.sokoban.model.escenario.Caja;
-import ec.edu.epn.sokoban.model.escenario.CajaComun;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
-import ec.edu.epn.sokoban.model.escenario.SueloComun;
+import ec.edu.epn.sokoban.model.escenario.Suelo;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -38,7 +37,7 @@ public class PartidaMomento {
             for (int c = 0; c < t.getColumnas(); c++) {
                 Casilla casilla = t.obtenerCasilla(f, c);
                 if (casilla instanceof Personaje || casilla instanceof Caja) {
-                    Casilla reemplazo = t.esMeta(f, c) ? new Meta(f, c) : new SueloComun(f, c);
+                    Casilla reemplazo = t.esMeta(f, c) ? new Meta(f, c) : new Suelo(f, c);
                     t.actualizarCasilla(f, c, reemplazo);
                 }
             }
@@ -48,7 +47,7 @@ public class PartidaMomento {
         for (Map.Entry<Caja, Casilla> entrada : posicionesCajas.entrySet()) {
             Caja cajaOriginal = entrada.getKey();
             Casilla pos = entrada.getValue();
-            Caja cajaRestaurada = new CajaComun(pos.getFila(), pos.getColumna(), cajaOriginal.isEnMeta());
+            Caja cajaRestaurada = new Caja(pos.getFila(), pos.getColumna(), cajaOriginal.isEnMeta());
             t.actualizarCasilla(pos.getFila(), pos.getColumna(), cajaRestaurada);
         }
 
@@ -70,8 +69,8 @@ public class PartidaMomento {
             return copia;
         }
         for (Map.Entry<Caja, Casilla> entrada : origen.entrySet()) {
-            Caja cajaCopiada = new CajaComun(entrada.getKey().getFila(), entrada.getKey().getColumna(), entrada.getKey().isEnMeta());
-            Casilla posicionCopiada = new SueloComun(entrada.getValue().getFila(), entrada.getValue().getColumna());
+            Caja cajaCopiada = new Caja(entrada.getKey().getFila(), entrada.getKey().getColumna(), entrada.getKey().isEnMeta());
+            Casilla posicionCopiada = new Suelo(entrada.getValue().getFila(), entrada.getValue().getColumna());
             copia.put(cajaCopiada, posicionCopiada);
         }
         return copia;
@@ -81,6 +80,6 @@ public class PartidaMomento {
         if (casilla == null) {
             return null;
         }
-        return new SueloComun(casilla.getFila(), casilla.getColumna());
+        return new Suelo(casilla.getFila(), casilla.getColumna());
     }
 }

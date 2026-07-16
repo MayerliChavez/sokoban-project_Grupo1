@@ -3,7 +3,7 @@ package ec.edu.epn.sokoban.controller;
 import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
-import ec.edu.epn.sokoban.model.reglas.ManejadorColision;
+import ec.edu.epn.sokoban.model.reglas.GestorColisiones;
 import ec.edu.epn.sokoban.view.VentanaPrincipal;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
@@ -13,22 +13,22 @@ import java.util.function.BooleanSupplier;
 /**
  * Event handler de teclado de JavaFX.
  * Se comunica directamente con la clase Personaje y Tablero para invocar el movimiento,
- * respetando que el Personaje reciba el Tablero por parámetro.
+ * utilizando el GestorColisiones único.
  */
 public class ControladorTeclado implements EventHandler<KeyEvent> {
     private Personaje personaje;
     private Tablero tablero;
-    private final ManejadorColision cadenaColisiones;
+    private final GestorColisiones gestorColisiones;
     private VentanaPrincipal ventanaPrincipal;
     private Runnable antesDeMover;
     private Runnable despuesDeMover;
     private Runnable accionDeshacer;
     private BooleanSupplier checkNivelCompletado;
 
-    public ControladorTeclado(Personaje personaje, Tablero tablero, ManejadorColision cadenaColisiones) {
+    public ControladorTeclado(Personaje personaje, Tablero tablero, GestorColisiones gestorColisiones) {
         this.personaje = personaje;
         this.tablero = tablero;
-        this.cadenaColisiones = cadenaColisiones;
+        this.gestorColisiones = gestorColisiones;
     }
 
     public void setPersonaje(Personaje personaje) {
@@ -98,12 +98,12 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
                 return; // Ignora cualquier otra tecla
         }
 
-        if (direccionElegida != null && personaje != null && tablero != null && cadenaColisiones != null) {
+        if (direccionElegida != null && personaje != null && tablero != null && gestorColisiones != null) {
             if (antesDeMover != null) {
                 antesDeMover.run();
             }
 
-            boolean movimientoRealizado = personaje.mover(direccionElegida, tablero, cadenaColisiones);
+            boolean movimientoRealizado = personaje.mover(direccionElegida, tablero, gestorColisiones);
 
             if (movimientoRealizado) {
                 if (despuesDeMover != null) {
