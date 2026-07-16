@@ -37,6 +37,9 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
 
     public void setTablero(Tablero tablero) {
         this.tablero = tablero;
+        if (tablero != null) {
+            this.personaje = tablero.getPersonaje();
+        }
     }
 
     public void setVentanaPrincipal(VentanaPrincipal ventanaPrincipal) {
