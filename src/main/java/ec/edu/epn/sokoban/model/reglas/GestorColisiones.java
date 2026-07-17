@@ -31,7 +31,7 @@ public final class GestorColisiones {
             if (!tablero.esCeldaTransitable(filaDestino, columnaDestino)) {
                 return false;
             }
-            tablero.moverPersonaje(personaje, filaDestino, columnaDestino);
+            tablero.actualizarCasilla(filaDestino, columnaDestino, personaje);
             return true;
         }
 
@@ -43,8 +43,8 @@ public final class GestorColisiones {
             return false;
         }
 
-        tablero.moverCaja(caja, filaDestinoCaja, columnaDestinoCaja);
-        tablero.moverPersonaje(personaje, filaDestino, columnaDestino);
+        tablero.actualizarCasilla(filaDestinoCaja, columnaDestinoCaja, caja);
+        tablero.actualizarCasilla(filaDestino, columnaDestino, personaje);
         return true;
     }
 }

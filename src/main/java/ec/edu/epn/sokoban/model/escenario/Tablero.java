@@ -100,13 +100,42 @@ public class Tablero extends Casilla {
         }
 
         if (nuevaCasilla != null) {
+            int oldFila = nuevaCasilla.getFila();
+            int oldColumna = nuevaCasilla.getColumna();
+
+            if ((nuevaCasilla instanceof Personaje || nuevaCasilla instanceof Caja)
+                    && (estaDentroDelTablero(oldFila, oldColumna) && celdas[oldFila][oldColumna] == nuevaCasilla)
+                    && (oldFila != f || oldColumna != c)) {
+                liberarPosicion(oldFila, oldColumna);
+            } else if (nuevaCasilla instanceof Personaje || nuevaCasilla instanceof Caja) {
+                // Si por alguna razón sus coordenadas internas ya fueron modificadas pero el objeto
+                // sigue registrado en el tablero en su posición antigua, lo buscamos y liberamos.
+                boolean encontrado = false;
+                for (int fIdx = 0; fIdx < filas; fIdx++) {
+                    for (int cIdx = 0; cIdx < columnas; cIdx++) {
+                        if (celdas[fIdx][cIdx] == nuevaCasilla) {
+                            if (fIdx != f || cIdx != c) {
+                                liberarPosicion(fIdx, cIdx);
+                            }
+                            encontrado = true;
+                            break;
+                        }
+                    }
+                    if (encontrado) {
+                        break;
+                    }
+                }
+            }
+
             nuevaCasilla.setFila(f);
             nuevaCasilla.setColumna(c);
+
             if (nuevaCasilla instanceof Meta) {
                 this.metas[f][c] = true;
-            }
-            if (nuevaCasilla instanceof Personaje) {
+            } else if (nuevaCasilla instanceof Personaje) {
                 this.personaje = (Personaje) nuevaCasilla;
+            } else if (nuevaCasilla instanceof Caja) {
+                ((Caja) nuevaCasilla).setEnMeta(esMeta(f, c));
             }
         }
 
@@ -133,29 +162,6 @@ public class Tablero extends Casilla {
     public Caja obtenerCaja(int fila, int columna) {
         Casilla casilla = obtenerCasilla(fila, columna);
         return casilla instanceof Caja ? (Caja) casilla : null;
-    }
-
-    public void moverPersonaje(Personaje personaje, int filaDestino, int columnaDestino) {
-        if (personaje == null || personaje != this.personaje
-                || !estaDentroDelTablero(filaDestino, columnaDestino)) {
-            throw new IllegalArgumentException("Movimiento de personaje inválido");
-        }
-        liberarPosicion(personaje.getFila(), personaje.getColumna());
-        personaje.setFila(filaDestino);
-        personaje.setColumna(columnaDestino);
-        actualizarCasilla(filaDestino, columnaDestino, personaje);
-    }
-
-    public void moverCaja(Caja caja, int filaDestino, int columnaDestino) {
-        if (caja == null || obtenerCaja(caja.getFila(), caja.getColumna()) != caja
-                || !estaDentroDelTablero(filaDestino, columnaDestino)) {
-            throw new IllegalArgumentException("Movimiento de caja inválido");
-        }
-        liberarPosicion(caja.getFila(), caja.getColumna());
-        caja.setFila(filaDestino);
-        caja.setColumna(columnaDestino);
-        caja.setEnMeta(esMeta(filaDestino, columnaDestino));
-        actualizarCasilla(filaDestino, columnaDestino, caja);
     }
 
     private void liberarPosicion(int fila, int columna) {
