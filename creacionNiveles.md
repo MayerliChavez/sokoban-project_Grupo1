@@ -17,6 +17,7 @@ Para definir los mapas de juego en archivos de texto plano (`.txt`), se utiliza 
 | **`*`** | Caja en Meta | `Caja` colocada en `Meta` | Caja que ya se encuentra sobre una meta. |
 | **`@`** | Personaje | `Personaje` | Operario del juego en suelo común. |
 | **`+`** | Personaje en Meta | `Personaje` sobre `Meta` | El operario de pie sobre una meta. |
+| **`T`** | Portal | `Suelo` con `Teletransportacion` | Suelo con acción de teletransportación para cajas. |
 
 ---
 

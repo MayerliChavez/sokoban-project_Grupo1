@@ -70,18 +70,8 @@ public class Teletransportacion implements Accion {
 
         Caja caja = (Caja) entidad;
 
-        // La posición de origen fue liberada en el tablero antes del salto espacial.
-        int filaOrigen = caja.getFila();
-        int columnaOrigen = caja.getColumna();
-        Casilla reemplazoOrigen = tablero.esMeta(filaOrigen, columnaOrigen)
-                ? new Meta(filaOrigen, columnaOrigen)
-                : new Suelo(filaOrigen, columnaOrigen);
-        tablero.actualizarCasilla(filaOrigen, columnaOrigen, reemplazoOrigen);
-
-        // Las coordenadas de la caja fueron actualizadas al destino y el tablero fue reflejado.
-        caja.setFila(filaDestino);
-        caja.setColumna(columnaDestino);
-        caja.setEnMeta(tablero.esMeta(filaDestino, columnaDestino));
+        // Las coordenadas de la caja son actualizadas al destino y el tablero es reflejado.
+        // La liberación de la posición de origen (A) se realiza automáticamente por el tablero.
         tablero.actualizarCasilla(filaDestino, columnaDestino, caja);
     }
 

@@ -108,6 +108,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("META", cargarImagen("/images/goal.png"));
         sprites.put("CAJA", cargarImagen("/images/box.png"));
         sprites.put("JUGADOR", cargarImagen("/images/player.png"));
+        sprites.put("PORTAL", cargarImagen("/images/portal.png"));
     }
 
     private Image cargarImagen(String ruta) {
@@ -237,6 +238,9 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     @Override
     public void dibujarCaja(Caja caja, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
+        if (tablero != null && tablero.esPortal(caja.getFila(), caja.getColumna())) {
+            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
+        }
         if (caja.isEnMeta()) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
@@ -246,6 +250,9 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     @Override
     public void dibujarPersonaje(Personaje personaje, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
+        if (tablero != null && tablero.esPortal(personaje.getFila(), personaje.getColumna())) {
+            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
+        }
         if (tablero != null && tablero.esMeta(personaje.getFila(), personaje.getColumna())) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
@@ -255,11 +262,17 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     @Override
     public void dibujarMeta(Meta meta, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
+        if (tablero != null && tablero.esPortal(meta.getFila(), meta.getColumna())) {
+            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
+        }
         agregarSprite(celda, "META", Color.web("#F4D35E"));
     }
 
     @Override
     public void dibujarSuelo(Suelo suelo, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
+        if (tablero != null && tablero.esPortal(suelo.getFila(), suelo.getColumna())) {
+            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
+        }
     }
 }

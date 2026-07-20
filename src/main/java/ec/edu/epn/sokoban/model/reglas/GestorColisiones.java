@@ -5,6 +5,7 @@ import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.GestorAcciones;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.escenario.Teletransportacion;
 
 /**
  * Las colisiones entre el personaje, las cajas y el tablero fueron validadas
@@ -93,6 +94,23 @@ public final class GestorColisiones {
                 || !tablero.esCeldaTransitable(filaDestinoCaja, columnaDestinoCaja)
                 || tablero.obtenerCaja(filaDestinoCaja, columnaDestinoCaja) != null) {
             return false;
+        }
+
+        // Si la casilla destino de la caja es un portal, validamos que su pareja esté libre y transitable
+        if (tablero.esPortal(filaDestinoCaja, columnaDestinoCaja)) {
+            Teletransportacion tele = tablero.obtenerTeletransportacion(filaDestinoCaja, columnaDestinoCaja);
+            if (tele != null) {
+                int fB = tele.getFilaDestino();
+                int cB = tele.getColumnaDestino();
+                if (!tablero.estaDentroDelTablero(fB, cB)
+                        || !tablero.esCeldaTransitable(fB, cB)
+                        || tablero.obtenerCaja(fB, cB) != null
+                        || (tablero.getPersonaje() != null 
+                            && tablero.getPersonaje().getFila() == fB 
+                            && tablero.getPersonaje().getColumna() == cB)) {
+                    return false; // Se bloquea el movimiento como si fuera una pared
+                }
+            }
         }
 
         // La casilla de destino de la caja fue extraída antes de actualizar el tablero

@@ -7,11 +7,12 @@ import ec.edu.epn.sokoban.model.interfaces.Dibujador;
  * La matriz bidimensional del escenario es gestionada.
  */
 public class Tablero extends Casilla {
-    private int filas;
+        private int filas;
     private int columnas;
     private Casilla[][] celdas;
     private boolean[][] metas;
     private Personaje personaje;
+    private Teletransportacion[][] portales;
 
     // =========================================================================
     // 1. Constructores e Inicialización
@@ -38,11 +39,52 @@ public class Tablero extends Casilla {
         this.filas = this.celdas.length;
         this.columnas = this.filas > 0 ? this.celdas[0].length : 0;
         this.personaje = personaje;
+        
+        // Inicializar el registro de portales a partir de las casillas cargadas
+        this.portales = new Teletransportacion[filas][columnas];
+        for (int f = 0; f < filas; f++) {
+            for (int c = 0; c < columnas; c++) {
+                Casilla casilla = this.celdas[f][c];
+                if (casilla != null) {
+                    for (var acc : casilla.getGestorAcciones().getAcciones()) {
+                        if (acc instanceof Teletransportacion) {
+                            this.portales[f][c] = (Teletransportacion) acc;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // =========================================================================
     // 2. Métodos ejecutados durante el juego y consultas de estado
     // =========================================================================
+
+    /**
+     * Verifica si una coordenada contiene un portal.
+     *
+     * @param f fila
+     * @param c columna
+     * @return true si es portal, false en caso contrario
+     */
+    public boolean esPortal(int f, int c) {
+        return estaDentroDelTablero(f, c) && portales != null && portales[f][c] != null;
+    }
+
+    /**
+     * Retorna la acción de teletransportación de una coordenada.
+     *
+     * @param f fila
+     * @param c columna
+     * @return la instancia de Teletransportacion, o null
+     */
+    public Teletransportacion obtenerTeletransportacion(int f, int c) {
+        if (estaDentroDelTablero(f, c) && portales != null) {
+            return portales[f][c];
+        }
+        return null;
+    }
 
     /**
      * La cantidad de filas es retornada.
@@ -165,8 +207,11 @@ public class Tablero extends Casilla {
     }
 
     private void liberarPosicion(int fila, int columna) {
-        actualizarCasilla(fila, columna,
-                esMeta(fila, columna) ? new Meta(fila, columna) : new Suelo(fila, columna));
+        Casilla reemplazo = esMeta(fila, columna) ? new Meta(fila, columna) : new Suelo(fila, columna);
+        if (esPortal(fila, columna)) {
+            reemplazo.getGestorAcciones().agregarAccion(portales[fila][columna]);
+        }
+        actualizarCasilla(fila, columna, reemplazo);
     }
 
     public Personaje getPersonaje() {
