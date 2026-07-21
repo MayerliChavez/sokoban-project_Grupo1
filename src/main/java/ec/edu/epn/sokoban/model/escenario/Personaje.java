@@ -27,6 +27,7 @@ public class Personaje extends Casilla {
      * @param gestorColisiones el gestor de colisiones único
      * @return true si el movimiento fue exitoso, false en caso contrario
      */
+    @Override
     public boolean mover(Direccion d, Tablero t, GestorColisiones gestorColisiones) {
         if (d == null || t == null || gestorColisiones == null) {
             return false;

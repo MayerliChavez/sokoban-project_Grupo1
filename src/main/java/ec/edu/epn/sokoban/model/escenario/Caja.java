@@ -3,6 +3,8 @@ package ec.edu.epn.sokoban.model.escenario;
 import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.interfaces.Dibujador;
 
+import ec.edu.epn.sokoban.model.reglas.GestorColisiones;
+
 /**
  * La clase Caja fue definida como una casilla no transitable y empujable.
  * La verificación de empuje fue integrada directamente en esta clase,
@@ -41,9 +43,11 @@ public class Caja extends Casilla {
      *
      * @param d la dirección del movimiento
      * @param t el tablero sobre el cual se mueve
+     * @param gestorColisiones gestor de colisiones opcional
      * @return true si el movimiento fue ejecutado, false en caso contrario
      */
-    public boolean mover(Direccion d, Tablero t) {
+    @Override
+    public boolean mover(Direccion d, Tablero t, GestorColisiones gestorColisiones) {
         if (d == null || t == null) {
             return false;
         }
@@ -65,6 +69,10 @@ public class Caja extends Casilla {
 
         t.actualizarCasilla(filaDestino, columnaDestino, this);
         return true;
+    }
+
+    public boolean mover(Direccion d, Tablero t) {
+        return mover(d, t, null);
     }
 
     /**
