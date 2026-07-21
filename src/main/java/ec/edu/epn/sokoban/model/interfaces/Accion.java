@@ -27,4 +27,14 @@ public interface Accion {
      *                      cada implementación es responsable de verificar el tipo concreto
      */
     void iniciarAccion(Casilla casillaActual, Tablero tablero, Casilla entidad);
+
+    /**
+     * Retorna el identificador del sprite para esta acción.
+     * Por defecto retorna null si la acción no tiene representación visual.
+     *
+     * @return el identificador del sprite, o null
+     */
+    default String getSpriteKey() {
+        return null;
+    }
 }

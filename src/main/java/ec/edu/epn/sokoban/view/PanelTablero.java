@@ -2,6 +2,7 @@ package ec.edu.epn.sokoban.view;
 
 import ec.edu.epn.sokoban.model.escenario.*;
 import ec.edu.epn.sokoban.model.interfaces.Dibujador;
+import ec.edu.epn.sokoban.model.interfaces.Accion;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,7 +21,8 @@ import java.util.Map;
 
 /**
  * Panel visual que representa el tablero de juego en la UI de JavaFX.
- * Implementa la interfaz Dibujador (Visitor) para aislar la visualización de los modelos.
+ * Implementa la interfaz Dibujador (Visitor) para aislar la visualización de
+ * los modelos.
  */
 public class PanelTablero extends GridPane implements Dibujador<StackPane> {
 
@@ -63,8 +65,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
                         "-fx-border-color: #4A4F55;" +
                         "-fx-border-width: 5;" +
                         "-fx-border-radius: 18;" +
-                        "-fx-background-radius: 18;"
-        );
+                        "-fx-background-radius: 18;");
 
         DropShadow sombraExterior = new DropShadow();
         sombraExterior.setRadius(24);
@@ -238,9 +239,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     @Override
     public void dibujarCaja(Caja caja, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
-        if (tablero != null && tablero.esPortal(caja.getFila(), caja.getColumna())) {
-            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
-        }
+        dibujarAccionesDeCasilla(caja.getFila(), caja.getColumna(), celda);
         if (caja.isEnMeta()) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
@@ -250,9 +249,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     @Override
     public void dibujarPersonaje(Personaje personaje, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
-        if (tablero != null && tablero.esPortal(personaje.getFila(), personaje.getColumna())) {
-            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
-        }
+        dibujarAccionesDeCasilla(personaje.getFila(), personaje.getColumna(), celda);
         if (tablero != null && tablero.esMeta(personaje.getFila(), personaje.getColumna())) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
@@ -262,17 +259,34 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     @Override
     public void dibujarMeta(Meta meta, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
-        if (tablero != null && tablero.esPortal(meta.getFila(), meta.getColumna())) {
-            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
-        }
+        dibujarAccionesDeCasilla(meta.getFila(), meta.getColumna(), celda);
         agregarSprite(celda, "META", Color.web("#F4D35E"));
     }
 
     @Override
     public void dibujarSuelo(Suelo suelo, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
-        if (tablero != null && tablero.esPortal(suelo.getFila(), suelo.getColumna())) {
-            agregarSprite(celda, "PORTAL", Color.web("#8A2BE2"));
+        dibujarAccionesDeCasilla(suelo.getFila(), suelo.getColumna(), celda);
+    }
+
+    private void dibujarAccionesDeCasilla(int fila, int columna, StackPane celda) {
+        if (tablero == null) return;
+        Casilla casilla = tablero.obtenerCasilla(fila, columna);
+        if (casilla != null) {
+            for (Accion accion : casilla.getGestorAcciones().getAcciones()) {
+                String spriteKey = accion.getSpriteKey();
+                if (spriteKey != null && !spriteKey.isEmpty()) {
+                    Color colorRespaldo = obtenerColorRespaldoParaAccion(spriteKey);
+                    agregarSprite(celda, spriteKey, colorRespaldo);
+                }
+            }
         }
+    }
+
+    private Color obtenerColorRespaldoParaAccion(String spriteKey) {
+        return switch (spriteKey) {
+            case "PORTAL" -> Color.web("#8A2BE2");
+            default -> Color.TRANSPARENT;
+        };
     }
 }

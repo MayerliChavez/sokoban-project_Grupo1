@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fábrica encargada de instanciar y armar el tablero a partir del mapa de datos del nivel.
+ * Fábrica encargada de instanciar y armar el tablero a partir del mapa de datos
+ * del nivel.
  */
 public class FabricaNiveles {
 
@@ -34,7 +35,7 @@ public class FabricaNiveles {
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 if ("T".equals(mapaDatos[f][c])) {
-                    portales.add(new int[]{f, c});
+                    portales.add(new int[] { f, c });
                 }
             }
         }

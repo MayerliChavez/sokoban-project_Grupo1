@@ -92,4 +92,14 @@ public class Teletransportacion implements Accion {
     public int getColumnaDestino() {
         return columnaDestino;
     }
+
+    /**
+     * Retorna el identificador del sprite para esta acción.
+     *
+     * @return "PORTAL"
+     */
+    @Override
+    public String getSpriteKey() {
+        return "PORTAL";
+    }
 }
