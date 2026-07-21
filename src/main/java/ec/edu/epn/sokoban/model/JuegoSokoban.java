@@ -125,7 +125,7 @@ public class JuegoSokoban {
         return new PartidaMomento(posicionesCajas, posicionJugador);
     }
 
-    public void verificarYRegistrarVictoria() {
+    public void registrarVictoria() {
         if (nivelActual != null && nivelActual.getReglasJuego() != null && nivelActual.getReglasJuego().verificarVictoria()) {
             nivelActual.marcarComoCompletado();
             persistencia.guardarProgreso(nivelesDisponibles);

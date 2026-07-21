@@ -57,7 +57,7 @@ public class GestorVentanas {
                 juego.getHistorial().registrarEstado(flujo.estadoAnterior);
                 flujo.estadoAnterior = null;
             }
-            juego.verificarYRegistrarVictoria();
+            juego.registrarVictoria();
         });
         
         controlador.setAccionDeshacer(() -> {
