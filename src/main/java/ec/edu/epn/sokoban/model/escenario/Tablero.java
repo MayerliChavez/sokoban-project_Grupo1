@@ -2,17 +2,18 @@ package ec.edu.epn.sokoban.model.escenario;
 
 import ec.edu.epn.sokoban.model.interfaces.Transitable;
 import ec.edu.epn.sokoban.model.interfaces.Dibujador;
+import ec.edu.epn.sokoban.model.interfaces.Accion;
 
 /**
  * La matriz bidimensional del escenario es gestionada.
  */
 public class Tablero extends Casilla {
-        private int filas;
+    private int filas;
     private int columnas;
     private Casilla[][] celdas;
     private boolean[][] metas;
     private Personaje personaje;
-    private Teletransportacion[][] portales;
+    private Casilla[][] casillasBase;
 
     // =========================================================================
     // 1. Constructores e Inicialización
@@ -39,19 +40,21 @@ public class Tablero extends Casilla {
         this.filas = this.celdas.length;
         this.columnas = this.filas > 0 ? this.celdas[0].length : 0;
         this.personaje = personaje;
-        
-        // Inicializar el registro de portales a partir de las casillas cargadas
-        this.portales = new Teletransportacion[filas][columnas];
+
+        // Guardar las casillas base originales (suelos, metas, portales) para
+        // restauración
+        this.casillasBase = new Casilla[filas][columnas];
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 Casilla casilla = this.celdas[f][c];
-                if (casilla != null) {
-                    for (var acc : casilla.getGestorAcciones().getAcciones()) {
-                        if (acc instanceof Teletransportacion) {
-                            this.portales[f][c] = (Teletransportacion) acc;
-                            break;
-                        }
+                if (casilla instanceof Personaje || casilla instanceof Caja) {
+                    if (esMeta(f, c)) {
+                        this.casillasBase[f][c] = new Meta(f, c);
+                    } else {
+                        this.casillasBase[f][c] = new Suelo(f, c);
                     }
+                } else {
+                    this.casillasBase[f][c] = casilla;
                 }
             }
         }
@@ -69,7 +72,18 @@ public class Tablero extends Casilla {
      * @return true si es portal, false en caso contrario
      */
     public boolean esPortal(int f, int c) {
-        return estaDentroDelTablero(f, c) && portales != null && portales[f][c] != null;
+        if (!estaDentroDelTablero(f, c) || casillasBase == null) {
+            return false;
+        }
+        Casilla base = casillasBase[f][c];
+        if (base != null) {
+            for (Accion acc : base.getGestorAcciones().getAcciones()) {
+                if (acc instanceof Teletransportacion) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -80,8 +94,16 @@ public class Tablero extends Casilla {
      * @return la instancia de Teletransportacion, o null
      */
     public Teletransportacion obtenerTeletransportacion(int f, int c) {
-        if (estaDentroDelTablero(f, c) && portales != null) {
-            return portales[f][c];
+        if (!estaDentroDelTablero(f, c) || casillasBase == null) {
+            return null;
+        }
+        Casilla base = casillasBase[f][c];
+        if (base != null) {
+            for (Accion acc : base.getGestorAcciones().getAcciones()) {
+                if (acc instanceof Teletransportacion) {
+                    return (Teletransportacion) acc;
+                }
+            }
         }
         return null;
     }
@@ -150,8 +172,10 @@ public class Tablero extends Casilla {
                     && (oldFila != f || oldColumna != c)) {
                 liberarPosicion(oldFila, oldColumna);
             } else if (nuevaCasilla instanceof Personaje || nuevaCasilla instanceof Caja) {
-                // Si por alguna razón sus coordenadas internas ya fueron modificadas pero el objeto
-                // sigue registrado en el tablero en su posición antigua, lo buscamos y liberamos.
+                // Si por alguna razón sus coordenadas internas ya fueron modificadas pero el
+                // objeto
+                // sigue registrado en el tablero en su posición antigua, lo buscamos y
+                // liberamos.
                 boolean encontrado = false;
                 for (int fIdx = 0; fIdx < filas; fIdx++) {
                     for (int cIdx = 0; cIdx < columnas; cIdx++) {
@@ -207,11 +231,22 @@ public class Tablero extends Casilla {
     }
 
     private void liberarPosicion(int fila, int columna) {
-        Casilla reemplazo = esMeta(fila, columna) ? new Meta(fila, columna) : new Suelo(fila, columna);
-        if (esPortal(fila, columna)) {
-            reemplazo.getGestorAcciones().agregarAccion(portales[fila][columna]);
+        restaurarCasillaBase(fila, columna);
+    }
+
+    /**
+     * Restaura la casilla original de fondo (suelo, meta, portal) en una coordenada
+     * específica,
+     * reemplazando cualquier entidad móvil que esté allí.
+     *
+     * @param f fila
+     * @param c columna
+     */
+    public void restaurarCasillaBase(int f, int c) {
+        if (estaDentroDelTablero(f, c) && casillasBase != null) {
+            Casilla reemplazo = casillasBase[f][c];
+            actualizarCasilla(f, c, reemplazo);
         }
-        actualizarCasilla(fila, columna, reemplazo);
     }
 
     public Personaje getPersonaje() {

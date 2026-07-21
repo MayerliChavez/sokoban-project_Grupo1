@@ -37,11 +37,7 @@ public class PartidaMomento {
             for (int c = 0; c < t.getColumnas(); c++) {
                 Casilla casilla = t.obtenerCasilla(f, c);
                 if (casilla instanceof Personaje || casilla instanceof Caja) {
-                    Casilla reemplazo = t.esMeta(f, c) ? new Meta(f, c) : new Suelo(f, c);
-                    if (t.esPortal(f, c)) {
-                        reemplazo.getGestorAcciones().agregarAccion(t.obtenerTeletransportacion(f, c));
-                    }
-                    t.actualizarCasilla(f, c, reemplazo);
+                    t.restaurarCasillaBase(f, c);
                 }
             }
         }
