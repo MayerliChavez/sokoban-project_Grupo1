@@ -109,6 +109,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("META", cargarImagen("/images/goal.png"));
         sprites.put("CAJA", cargarImagen("/images/box.png"));
         sprites.put("JUGADOR", cargarImagen("/images/player.png"));
+        sprites.put("PORTAL", cargarImagen("/images/portal.png"));
     }
 
     private Image cargarImagen(String ruta) {
@@ -269,7 +270,8 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     }
 
     private void dibujarAccionesDeCasilla(int fila, int columna, StackPane celda) {
-        if (tablero == null) return;
+        if (tablero == null)
+            return;
         Casilla casilla = tablero.obtenerCasilla(fila, columna);
         if (casilla != null) {
             for (Accion accion : casilla.getGestorAcciones().getAcciones()) {
@@ -283,6 +285,9 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     }
 
     private Color obtenerColorRespaldoParaAccion(String spriteKey) {
-        return Color.TRANSPARENT;
+        return switch (spriteKey) {
+            case "PORTAL" -> Color.web("#8A2BE2");
+            default -> Color.TRANSPARENT;
+        };
     }
 }
