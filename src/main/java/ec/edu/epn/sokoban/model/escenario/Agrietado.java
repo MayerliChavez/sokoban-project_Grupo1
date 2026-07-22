@@ -16,7 +16,7 @@ public class Agrietado implements Accion {
 
     @Override
     public void iniciarAccion(Casilla casillaActual, Tablero tablero, Casilla entidad) {
-        if (!(entidad instanceof Personaje)) {
+        if (!(entidad instanceof Personaje) && !(entidad instanceof Caja)) {
             return;
         }
 

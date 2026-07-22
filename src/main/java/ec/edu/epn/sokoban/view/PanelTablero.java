@@ -241,6 +241,9 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     public void dibujarCaja(Caja caja, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
         dibujarAccionesDeCasilla(caja.getFila(), caja.getColumna(), celda);
+        if (Agrietado.estaRoto(caja.getFila(), caja.getColumna())) {
+            agregarSprite(celda, "AGRIETADO_ROTO", Color.web("#1F1712"));
+        }
         if (caja.isEnMeta()) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
