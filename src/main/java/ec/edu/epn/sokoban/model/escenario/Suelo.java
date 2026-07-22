@@ -4,11 +4,10 @@ import ec.edu.epn.sokoban.model.interfaces.Transitable;
 import ec.edu.epn.sokoban.model.interfaces.Dibujador;
 
 /**
- * Representa una casilla meta.
+ * Clase que representa el terreno base transitable.
  */
-public class Meta extends Casilla implements Transitable {
-
-    public Meta(int f, int c) {
+public class Suelo extends Casilla implements Transitable {
+    public Suelo(int f, int c) {
         super(f, c);
     }
 
@@ -19,6 +18,6 @@ public class Meta extends Casilla implements Transitable {
 
     @Override
     public <T> void dibujar(Dibujador<T> dibujador, T contenedor, int tamCelda) {
-        dibujador.dibujarMeta(this, contenedor, tamCelda);
+        dibujador.dibujarSuelo(this, contenedor, tamCelda);
     }
 }

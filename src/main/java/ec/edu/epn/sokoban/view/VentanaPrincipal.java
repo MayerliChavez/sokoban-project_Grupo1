@@ -1,5 +1,10 @@
 package ec.edu.epn.sokoban.view;
 
+import ec.edu.epn.sokoban.controller.ControladorTeclado;
+import ec.edu.epn.sokoban.controller.GestorVentanas;
+import ec.edu.epn.sokoban.model.JuegoSokoban;
+import ec.edu.epn.sokoban.model.escenario.Caja;
+import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 
 import javafx.geometry.Insets;
@@ -19,6 +24,8 @@ import javafx.scene.paint.Color;
 public class VentanaPrincipal extends BorderPane {
 
     private final PanelTablero panelTablero;
+    private final GestorVentanas gestorVentanas;
+    private final JuegoSokoban juego;
 
     private Label lblNivel;
     private Label lblMovimientosSuperior;
@@ -26,20 +33,53 @@ public class VentanaPrincipal extends BorderPane {
     private Label lblMovimientosEstado;
 
     private Button btnReiniciar;
-    private Button btnPausa;
+    private Button btnRetroceder;
     private Button btnMenu;
+    private ControladorTeclado controladorTeclado;
+    private StackPane zonaTablero;
 
-    public VentanaPrincipal(Tablero tablero) {
+    public VentanaPrincipal(
+            JuegoSokoban juego,
+            Tablero tablero,
+            GestorVentanas gestorVentanas) {
+
+        this.juego = juego;
+        this.gestorVentanas = gestorVentanas;
+
         this.panelTablero = new PanelTablero(tablero);
+
         configurarVentana();
         construirInterfaz();
+        configurarEventos();
+        actualizarEstadisticas();
     }
 
     private void configurarVentana() {
         setStyle(
                 "-fx-background-color: " +
-                        "linear-gradient(to bottom, #10202B 0%, #0B0F12 45%, #050607 100%);"
-        );
+                        "linear-gradient(to bottom, #10202B 0%, #0B0F12 45%, #050607 100%);");
+    }
+
+    private void configurarEventos() {
+
+        btnMenu.setOnAction(e -> gestorVentanas.mostrarMenu());
+
+        btnReiniciar.setOnAction(e -> {
+            juego.reiniciarNivelActual();
+            Tablero nuevoTablero = juego.getTableroActual();
+            actualizarTablero(nuevoTablero);
+            if (controladorTeclado != null) {
+                controladorTeclado.setTablero(nuevoTablero);
+            }
+            actualizarEstadisticas();
+        });
+
+        btnRetroceder.setOnAction(e -> {
+            juego.deshacerUltimaAccion();
+            actualizarTablero(juego.getTableroActual());
+            actualizarEstadisticas();
+        });
+
     }
 
     private void construirInterfaz() {
@@ -69,8 +109,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-border-color: #7A4A1D;" +
                         "-fx-border-width: 3;" +
                         "-fx-border-radius: 10;" +
-                        "-fx-background-radius: 10;"
-        );
+                        "-fx-background-radius: 10;");
 
         DropShadow sombraTitulo = new DropShadow();
         sombraTitulo.setRadius(14);
@@ -88,7 +127,7 @@ public class VentanaPrincipal extends BorderPane {
         HBox.setHgrow(espacio2, Priority.ALWAYS);
 
         btnReiniciar = crearBotonSuperior("↻ Reiniciar", "#105BA5", "#2F8FEA");
-        btnPausa = crearBotonSuperior("Ⅱ Pausa", "#246A1F", "#56B047");
+        btnRetroceder = crearBotonSuperior("← Retroceder", "#246A1F", "#56B047");
         btnMenu = crearBotonSuperior("☰ Menú", "#53217A", "#9B4DD9");
 
         barra.getChildren().addAll(
@@ -98,9 +137,8 @@ public class VentanaPrincipal extends BorderPane {
                 lblMovimientosSuperior,
                 espacio2,
                 btnReiniciar,
-                btnPausa,
-                btnMenu
-        );
+                btnRetroceder,
+                btnMenu);
 
         return barra;
     }
@@ -120,8 +158,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-border-color: #5A4025;" +
                         "-fx-border-width: 1.8;" +
                         "-fx-border-radius: 12;" +
-                        "-fx-background-radius: 12;"
-        );
+                        "-fx-background-radius: 12;");
 
         DropShadow sombra = new DropShadow();
         sombra.setRadius(8);
@@ -149,8 +186,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-border-radius: 12;" +
                         "-fx-border-color: rgba(255,255,255,0.28);" +
                         "-fx-border-width: 2;" +
-                        "-fx-cursor: hand;"
-        );
+                        "-fx-cursor: hand;");
 
         DropShadow sombra = new DropShadow();
         sombra.setRadius(10);
@@ -175,16 +211,14 @@ public class VentanaPrincipal extends BorderPane {
         iconoObjetivo.setStyle(
                 "-fx-text-fill: #E94B4B;" +
                         "-fx-font-size: 44px;" +
-                        "-fx-font-weight: bold;"
-        );
+                        "-fx-font-weight: bold;");
 
         Label textoObjetivo = new Label("Empuja las cajas\nhasta las metas.");
         textoObjetivo.setAlignment(Pos.CENTER);
         textoObjetivo.setStyle(
                 "-fx-text-fill: #F0E8D8;" +
                         "-fx-font-size: 14px;" +
-                        "-fx-line-spacing: 3px;"
-        );
+                        "-fx-line-spacing: 3px;");
 
         panelObjetivo.getChildren().addAll(iconoObjetivo, textoObjetivo);
 
@@ -220,8 +254,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-border-color: #6B4A2A;" +
                         "-fx-border-width: 2.5;" +
                         "-fx-border-radius: 16;" +
-                        "-fx-background-radius: 16;"
-        );
+                        "-fx-background-radius: 16;");
 
         Label cabecera = new Label(titulo);
         cabecera.setMaxWidth(Double.MAX_VALUE);
@@ -234,8 +267,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 14 14 0 0;" +
                         "-fx-border-color: rgba(255,255,255,0.12);" +
-                        "-fx-border-width: 0 0 1.5 0;"
-        );
+                        "-fx-border-width: 0 0 1.5 0;");
 
         tarjeta.getChildren().add(cabecera);
 
@@ -259,8 +291,7 @@ public class VentanaPrincipal extends BorderPane {
         lblIcono.setStyle(
                 "-fx-text-fill: " + colorIcono + ";" +
                         "-fx-font-size: 26px;" +
-                        "-fx-font-weight: bold;"
-        );
+                        "-fx-font-weight: bold;");
 
         VBox textos = new VBox(1);
         textos.setAlignment(Pos.CENTER_LEFT);
@@ -268,15 +299,13 @@ public class VentanaPrincipal extends BorderPane {
         Label lblTexto = new Label(texto);
         lblTexto.setStyle(
                 "-fx-text-fill: #F0E8D8;" +
-                        "-fx-font-size: 13px;"
-        );
+                        "-fx-font-size: 13px;");
 
         Label lblValor = new Label(valor);
         lblValor.setStyle(
                 "-fx-text-fill: " + colorValor + ";" +
                         "-fx-font-size: 18px;" +
-                        "-fx-font-weight: bold;"
-        );
+                        "-fx-font-weight: bold;");
 
         textos.getChildren().addAll(lblTexto, lblValor);
         fila.getChildren().addAll(lblIcono, textos);
@@ -294,6 +323,7 @@ public class VentanaPrincipal extends BorderPane {
 
     private StackPane crearZonaTablero() {
         StackPane zona = new StackPane();
+        this.zonaTablero = zona;
         zona.setAlignment(Pos.CENTER);
         zona.setPadding(new Insets(18, 24, 18, 0));
 
@@ -307,8 +337,7 @@ public class VentanaPrincipal extends BorderPane {
         scrollPane.setStyle(
                 "-fx-background: transparent;" +
                         "-fx-background-color: transparent;" +
-                        "-fx-border-color: transparent;"
-        );
+                        "-fx-border-color: transparent;");
 
         zona.getChildren().add(scrollPane);
 
@@ -330,8 +359,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-border-color: #5A3B1D;" +
                         "-fx-border-width: 2;" +
                         "-fx-border-radius: 16;" +
-                        "-fx-background-radius: 16;"
-        );
+                        "-fx-background-radius: 16;");
 
         Label foco = new Label("!");
         foco.setAlignment(Pos.CENTER);
@@ -344,21 +372,18 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-border-color: #FFD15C;" +
                         "-fx-border-width: 2;" +
                         "-fx-border-radius: 50%;" +
-                        "-fx-background-radius: 50%;"
-        );
+                        "-fx-background-radius: 50%;");
 
         Label tituloConsejo = new Label("Consejo:");
         tituloConsejo.setStyle(
                 "-fx-text-fill: #FFD15C;" +
                         "-fx-font-size: 16px;" +
-                        "-fx-font-weight: bold;"
-        );
+                        "-fx-font-weight: bold;");
 
         Label textoConsejo = new Label("Planifica tus movimientos y piensa antes de empujar.");
         textoConsejo.setStyle(
                 "-fx-text-fill: #F0E8D8;" +
-                        "-fx-font-size: 16px;"
-        );
+                        "-fx-font-size: 16px;");
 
         Region espacio = new Region();
         HBox.setHgrow(espacio, Priority.ALWAYS);
@@ -374,8 +399,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-background-radius: 10;" +
                         "-fx-border-radius: 10;" +
                         "-fx-border-color: rgba(255,255,255,0.12);" +
-                        "-fx-cursor: hand;"
-        );
+                        "-fx-cursor: hand;");
 
         barra.getChildren().addAll(foco, tituloConsejo, textoConsejo, espacio, btnConfig);
         contenedor.getChildren().add(barra);
@@ -385,6 +409,170 @@ public class VentanaPrincipal extends BorderPane {
 
     public void actualizarTablero(Tablero nuevoTablero) {
         panelTablero.actualizarTablero(nuevoTablero);
+        if (zonaTablero != null && zonaTablero.getChildren().size() > 1) {
+            zonaTablero.getChildren().remove(1, zonaTablero.getChildren().size());
+        }
+    }
+
+    public void actualizarEstadisticas() {
+        int indexNivel = juego.getNivelesDisponibles().indexOf(juego.getNivelActual());
+        actualizarNivel(indexNivel >= 0 ? indexNivel + 1 : 1);
+
+        int movimientos = juego.getHistorial().getMovimientosContador();
+        actualizarMovimientos(movimientos);
+
+        int totalCajas = 0;
+        int cajasEnMeta = 0;
+        Tablero t = juego.getTableroActual();
+        if (t != null) {
+            for (int f = 0; f < t.getFilas(); f++) {
+                for (int c = 0; c < t.getColumnas(); c++) {
+                    Casilla casilla = t.obtenerCasilla(f, c);
+                    if (casilla instanceof Caja) {
+                        totalCajas++;
+                        if (((Caja) casilla).isEnMeta()) {
+                            cajasEnMeta++;
+                        }
+                    }
+                }
+            }
+        }
+        actualizarCajasEstado(cajasEnMeta, totalCajas);
+
+        boolean completado = juego.getNivelActual() != null && juego.getNivelActual().isCompletado();
+        btnReiniciar.setDisable(completado);
+        btnRetroceder.setDisable(completado);
+        if (completado) {
+            mostrarOverlayVictoria();
+        }
+    }
+
+    private void mostrarOverlayVictoria() {
+        if (zonaTablero == null || zonaTablero.getChildren().size() > 1) {
+            return;
+        }
+
+        VBox overlay = new VBox(25);
+        overlay.setAlignment(Pos.CENTER);
+        overlay.setStyle(
+                "-fx-background-color: rgba(5, 7, 10, 0.88);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-border-color: #6ED36E;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-max-width: 450px;" +
+                        "-fx-max-height: 280px;");
+
+        DropShadow sombra = new DropShadow();
+        sombra.setRadius(25);
+        sombra.setColor(Color.rgb(110, 211, 110, 0.4));
+        overlay.setEffect(sombra);
+
+        Label lblMensaje = new Label("¡HAS GANADO!");
+        lblMensaje.setStyle(
+                "-fx-text-fill: #6ED36E;" +
+                        "-fx-font-size: 32px;" +
+                        "-fx-font-weight: bold;");
+        overlay.getChildren().add(lblMensaje);
+
+        int indexActual = juego.getNivelesDisponibles().indexOf(juego.getNivelActual());
+        boolean haySiguiente = indexActual >= 0 && indexActual < juego.getNivelesDisponibles().size() - 1;
+
+        Button btnAccion = new Button();
+        if (haySiguiente) {
+            btnAccion.setText("Siguiente Nivel");
+            btnAccion.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #72DD72, #2B882B);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 18px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-color: rgba(255,255,255,0.3);" +
+                            "-fx-border-width: 2;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-pref-width: 220px;" +
+                            "-fx-pref-height: 45px;");
+            btnAccion.setOnMouseEntered(e -> btnAccion.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #8BFF8B, #3CA43C);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 18px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-color: rgba(255,255,255,0.4);" +
+                            "-fx-border-width: 2;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-pref-width: 220px;" +
+                            "-fx-pref-height: 45px;"));
+            btnAccion.setOnMouseExited(e -> btnAccion.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #72DD72, #2B882B);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 18px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-color: rgba(255,255,255,0.3);" +
+                            "-fx-border-width: 2;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-pref-width: 220px;" +
+                            "-fx-pref-height: 45px;"));
+            btnAccion.setOnAction(e -> {
+                int siguienteNivel = indexActual + 2;
+                gestorVentanas.abrirNivel(siguienteNivel);
+            });
+        } else {
+            lblMensaje.setText("¡JUEGO COMPLETADO!");
+            Label lblSub = new Label("¡Has superado todos los niveles!");
+            lblSub.setStyle("-fx-text-fill: #F0E8D8; -fx-font-size: 16px;");
+            overlay.getChildren().add(lblSub);
+
+            btnAccion.setText("Volver al Menú");
+            btnAccion.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #F6B43A, #A86A18);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 18px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-color: rgba(255,255,255,0.3);" +
+                            "-fx-border-width: 2;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-pref-width: 220px;" +
+                            "-fx-pref-height: 45px;");
+            btnAccion.setOnMouseEntered(e -> btnAccion.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #FFD36B, #D48A23);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 18px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-color: rgba(255,255,255,0.4);" +
+                            "-fx-border-width: 2;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-pref-width: 220px;" +
+                            "-fx-pref-height: 45px;"));
+            btnAccion.setOnMouseExited(e -> btnAccion.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #F6B43A, #A86A18);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 18px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-color: rgba(255,255,255,0.3);" +
+                            "-fx-border-width: 2;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-pref-width: 220px;" +
+                            "-fx-pref-height: 45px;"));
+            btnAccion.setOnAction(e -> gestorVentanas.mostrarMenu());
+        }
+
+        overlay.getChildren().add(btnAccion);
+        zonaTablero.getChildren().add(overlay);
+    }
+
+    public void setControladorTeclado(ControladorTeclado controladorTeclado) {
+        this.controladorTeclado = controladorTeclado;
     }
 
     public void actualizarMovimientos(int movimientos) {
@@ -404,8 +592,8 @@ public class VentanaPrincipal extends BorderPane {
         return btnReiniciar;
     }
 
-    public Button getBtnPausa() {
-        return btnPausa;
+    public Button getBtnRetroceder() {
+        return btnRetroceder;
     }
 
     public Button getBtnMenu() {

@@ -6,11 +6,12 @@ Este proyecto consiste en una reestructuración completa del clásico juego **So
 
 El sistema se divide claramente en capas según el patrón MVC, asegurando una alta cohesión y bajo acoplamiento:
 *   **Modelo (`model`)**: Contiene la lógica del negocio (reglas, colisiones, tablero, nivel) y las entidades del dominio.
-    *   **Patrón Composite**: La clase abstracta `Casilla` representa el componente base. Las hojas (`Pared`, `SueloComun`, `Meta`, `Caja`, `Personaje`) y el compuesto (`Tablero`) heredan de `Casilla`, permitiendo tratar a todos los elementos del mapa de manera uniforme.
+    *   **Patrón Composite**: La clase abstracta `Casilla` representa el componente base. Las hojas (`Pared`, `SueloComun`, `Meta`, `Caja`, `Personaje`) y el compuesto (`Tablero`) heredan de `Casilla`, permitiendo tratar a todos los elementos del mapa de manera uniforme. Las casillas controlan su comportamiento polimórficamente mediante `esTransitable()` y `esEmpujable()`.
+    *   **Chain of Responsibility**: Los manejadores de reglas (`ManejadorColision`, `ManejadorPared`, `ManejadorCaja`, `ManejadorMovimientoBase`) están encadenados dinámicamente para validar las físicas de juego sin acoplar las clases físicas a tipos concretos (Open/Closed Principle).
     *   **Patrón Factory**: `FabricaNiveles` se encarga de instanciar y ensamblar el `Tablero` y sus celdas a partir de la representación del `Nivel`.
-    *   **Patrón Memento**: `PartidaMomento` (el Memento) almacena instantáneas del estado del juego (`Map<Caja, Casilla>` y `Casilla` del personaje) y `HistorialMovimientos` (el Caretaker) permite realizar operaciones de deshacer (undo) usando una pila de estados.
-*   **Vista (`view`)**: Implementa la interfaz gráfica usando **JavaFX** (`VentanaPrincipal`, `MenuInicio`, `PanelTablero`), renderizando el estado del modelo visualmente y abstrayéndose de la lógica de reglas de negocio.
-*   **Controlador (`controller`)**: `ControladorTeclado` coordina la interacción del usuario (eventos de teclado) y el modelo, actualizando la vista según corresponda.
+    *   **Patrón Memento**: `PartidaMomento` (el Memento) almacena instantáneas inmutables de las entidades móviles del escenario (`Map<Caja, Casilla>` y `Casilla` del personaje) y `HistorialMovimientos` (el Caretaker) permite realizar operaciones de deshacer (undo) usando una pila de estados.
+*   **Vista (`view`)**: Implementa la interfaz gráfica usando **JavaFX** (`VentanaPrincipal`, `MenuInicio`, `PanelTablero`, `SeleccionNivel`, `Creditos`), renderizando el estado del modelo visualmente y abstrayéndose de la lógica de reglas de negocio.
+*   **Controlador (`controller`)**: `ControladorTeclado` coordina la interacción del usuario (eventos de teclado) y el modelo, comunicándose polimórficamente con `Personaje` y `Tablero` mediante callbacks e interfaces funcionales (`Runnable`, `BooleanSupplier`) para eliminar acoplamientos con `JuegoSokoban`. `GestorVentanas` controla la navegación y el ciclo de vida del escenario.
 *   **Persistencia**: El `GestorPersistencia` desacopla la carga de niveles y almacenamiento del progreso en archivos `.txt`.
 
 ---
@@ -31,19 +32,22 @@ sokoban-project/
 │   │   │       └── edu/
 │   │   │           └── epn/
 │   │   │               └── sokoban/
-│   │   │                   ├── Main.java
 │   │   │                   ├── MainApp.java
+│   │   │                   ├── Direccion.java
 │   │   │                   ├── controller/
-│   │   │                   │   └── ControladorTeclado.java
+│   │   │                   │   ├── ControladorTeclado.java
+│   │   │                   │   └── GestorVentanas.java
 │   │   │                   ├── model/
-│   │   │                   │   ├── Direccion.java
 │   │   │                   │   ├── JuegoSokoban.java
 │   │   │                   │   ├── escenario/
 │   │   │                   │   │   ├── Casilla.java
 │   │   │                   │   │   ├── Pared.java
+│   │   │                   │   │   ├── ParedComun.java
+│   │   │                   │   │   ├── Suelo.java
 │   │   │                   │   │   ├── SueloComun.java
 │   │   │                   │   │   ├── Meta.java
 │   │   │                   │   │   ├── Caja.java
+│   │   │                   │   │   ├── CajaComun.java
 │   │   │                   │   │   ├── Personaje.java
 │   │   │                   │   │   └── Tablero.java
 │   │   │                   │   ├── historial/
@@ -51,8 +55,11 @@ sokoban-project/
 │   │   │                   │   │   ├── PartidaMomento.java
 │   │   │                   │   │   └── HistorialMovimientos.java
 │   │   │                   │   ├── reglas/
-│   │   │                   │   │   ├── ReglasJuego.java
-│   │   │                   │   │   └── GestorColisiones.java
+│   │   │                   │   │   ├── ManejadorColision.java
+│   │   │                   │   │   ├── ManejadorPared.java
+│   │   │                   │   │   ├── ManejadorCaja.java
+│   │   │                   │   │   ├── ManejadorMovimientoBase.java
+│   │   │                   │   │   └── ReglasJuego.java
 │   │   │                   │   ├── persistencia/
 │   │   │                   │   │   └── GestorPersistencia.java
 │   │   │                   │   └── factory/
@@ -60,7 +67,9 @@ sokoban-project/
 │   │   │                   └── view/
 │   │   │                       ├── VentanaPrincipal.java
 │   │   │                       ├── MenuInicio.java
-│   │   │                       └── PanelTablero.java
+│   │   │                       ├── PanelTablero.java
+│   │   │                       ├── SeleccionNivel.java
+│   │   │                       └── Creditos.java
 │   │   └── resources/
 │   │       └── niveles/
 │   │           ├── 1.txt

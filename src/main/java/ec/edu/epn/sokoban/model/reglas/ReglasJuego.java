@@ -1,20 +1,42 @@
 package ec.edu.epn.sokoban.model.reglas;
 
-import ec.edu.epn.sokoban.model.Direccion;
-import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
-import java.util.List;
 
-public class ReglasJuego {
+/** Reglas generales asociadas al tablero de la partida actual. */
+public final class ReglasJuego {
+    private final GestorColisiones gestorColisiones;
+    private Tablero tablero;
+
     public ReglasJuego() {
+        this.gestorColisiones = new GestorColisiones();
     }
 
-    public boolean validarMovimiento(Casilla origen, Direccion d, Tablero t) {
-        return false;
+    public void asociarTablero(Tablero tablero) {
+        this.tablero = tablero;
     }
 
-    public boolean verificarVictoria(List<Meta> metas) {
-        return false;
+    public GestorColisiones getGestorColisiones() {
+        return gestorColisiones;
     }
+
+    /** Itera las metas del tablero asociado y comprueba que todas contengan caja. */
+    public boolean verificarVictoria() {
+        if (tablero == null) {
+            return false;
+        }
+
+        boolean existeMeta = false;
+        for (int fila = 0; fila < tablero.getFilas(); fila++) {
+            for (int columna = 0; columna < tablero.getColumnas(); columna++) {
+                if (tablero.esMeta(fila, columna)) {
+                    existeMeta = true;
+                    if (tablero.obtenerCaja(fila, columna) == null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return existeMeta;
+    }
+
 }

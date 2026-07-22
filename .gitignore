@@ -1,0 +1,35 @@
+# Target/Build outputs
+target/
+out/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Eclipse
+.settings/
+.project
+.classpath
+.factorypath
+
+# OS Metadata
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Local / Runtime state files
+progress.txt
+*.log
+
+# Compiled / Archive files
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.gz
