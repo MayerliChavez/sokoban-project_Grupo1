@@ -109,6 +109,8 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("META", cargarImagen("/images/goal.png"));
         sprites.put("CAJA", cargarImagen("/images/box.png"));
         sprites.put("JUGADOR", cargarImagen("/images/player.png"));
+        sprites.put("AGRIETADO", cargarImagen("/images/agrietado.png"));
+        sprites.put("AGRIETADO_ROTO", cargarImagen("/images/agrietado_roto.png"));
         sprites.put("CAJA_EXPLOSIVA", cargarImagen("/images/explosionBox.png"));
     }
 
@@ -252,6 +254,10 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     public void dibujarPersonaje(Personaje personaje, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
         dibujarAccionesDeCasilla(personaje.getFila(), personaje.getColumna(), celda);
+        if (Agrietado.estaRoto(personaje.getFila(), personaje.getColumna())) {
+            agregarSprite(celda, "AGRIETADO_ROTO", Color.web("#1F1712"));
+        }
+        if (tablero != null && tablero.esMeta(personaje.getFila(), personaje.getColumna())) {
         if (tablero != null && tablero.esCeldaMeta(personaje.getFila(), personaje.getColumna())) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
@@ -288,6 +294,10 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
 
     private Color obtenerColorRespaldoParaAccion(String spriteKey) {
         return switch (spriteKey) {
+            case "AGRIETADO" -> Color.web("#6B5140");
+            case "AGRIETADO_ROTO" -> Color.web("#1F1712");
+            default -> Color.TRANSPARENT;
+        };
             case "LAVA" -> Color.web("#FF4500"); // Grupo 2: respaldo naranja/rojo
             case "PORTAL" -> Color.web("#8A2BE2");
             default -> Color.TRANSPARENT;
