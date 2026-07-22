@@ -13,7 +13,6 @@ public class Tablero extends Casilla {
     private boolean[][] metas;
     private Personaje personaje;
     private Casilla[][] casillasBase;
-    private boolean reinicioSolicitado;
 
     public Tablero() {
         this(new Casilla[0][0], new boolean[0][0], null);
@@ -139,14 +138,6 @@ public class Tablero extends Casilla {
 
     public Personaje getPersonaje() {
         return personaje;
-    }
-
-    public void solicitarReinicio() {
-        reinicioSolicitado = true;
-    }
-
-    public boolean isReinicioSolicitado() {
-        return reinicioSolicitado;
     }
 
     @Override

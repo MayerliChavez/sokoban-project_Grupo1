@@ -7,7 +7,7 @@ import ec.edu.epn.sokoban.model.escenario.Suelo;
 import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
-import ec.edu.epn.sokoban.model.escenario.SueloFragil;
+import ec.edu.epn.sokoban.model.escenario.Agrietado;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 
 /**
@@ -52,10 +52,10 @@ public class FabricaNiveles {
             case " ":
                 return new Suelo(fila, columna);
 
-            case "F":
-                Suelo sueloFragil = new Suelo(fila, columna);
-                sueloFragil.getGestorAcciones().agregarAccion(new SueloFragil());
-                return sueloFragil;
+            case "A":
+                Suelo sueloAgrietado = new Suelo(fila, columna);
+                sueloAgrietado.getGestorAcciones().agregarAccion(new Agrietado());
+                return sueloAgrietado;
 
             case ".":
                 metas[fila][columna] = true;
