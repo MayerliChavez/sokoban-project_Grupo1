@@ -1,7 +1,6 @@
 package ec.edu.epn.sokoban.model.escenario;
 
 import ec.edu.epn.sokoban.model.interfaces.Accion;
-import ec.edu.epn.sokoban.model.reglas.NotificadorDerrota;
 
 /**
  * Acción concreta del Grupo 2: terreno peligroso de Lava.
@@ -11,20 +10,34 @@ import ec.edu.epn.sokoban.model.reglas.NotificadorDerrota;
  * - Si el personaje la pisa, se quema y se pierde.
  * - Si una caja cae en ella, la partida también se pierde.
  *
- * La derrota se comunica mediante {@link NotificadorDerrota}, sin acoplar
- * esta acción al controlador ni a la vista. No requiere distinguir el tipo
- * de entidad (sin {@code instanceof}), ya que el resultado es el mismo
- * para ambas.
+ * La derrota se comunica mediante un callback ({@link Runnable}) registrado
+ * por el controlador. El modelo no conoce a la vista ni a JavaFX: solo
+ * ejecuta la reacción que le fue registrada.
  */
 public class Lava implements Accion {
 
+    /** Reacción ante la derrota, registrada por el controlador. */
+    private static Runnable notificadorDerrota;
+
+    /**
+     * Registra la reacción que será ejecutada cuando una entidad caiga en la lava.
+     *
+     * @param accion lógica a ejecutar al perder la partida (ej. reiniciar el nivel)
+     */
+    public static void registrarNotificadorDerrota(Runnable accion) {
+        notificadorDerrota = accion;
+    }
+
     /**
      * Se ejecuta después de que la entidad fue movida con éxito a la casilla:
-     * la partida se declara perdida.
+     * la partida se declara perdida. No requiere distinguir el tipo de entidad
+     * (sin {@code instanceof}), ya que el resultado es el mismo para ambas.
      */
     @Override
     public void iniciarAccion(Casilla casillaActual, Tablero tablero, Casilla entidad) {
-        NotificadorDerrota.notificarDerrota();
+        if (notificadorDerrota != null) {
+            notificadorDerrota.run();
+        }
     }
 
     /**
