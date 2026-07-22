@@ -109,6 +109,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("META", cargarImagen("/images/goal.png"));
         sprites.put("CAJA", cargarImagen("/images/box.png"));
         sprites.put("JUGADOR", cargarImagen("/images/player.png"));
+        sprites.put("SUELO_FRAGIL", cargarImagen("/images/fragile_floor.png"));
     }
 
     private Image cargarImagen(String ruta) {
@@ -283,6 +284,9 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     }
 
     private Color obtenerColorRespaldoParaAccion(String spriteKey) {
-        return Color.TRANSPARENT;
+        return switch (spriteKey) {
+            case "SUELO_FRAGIL" -> Color.web("#6B5140");
+            default -> Color.TRANSPARENT;
+        };
     }
 }

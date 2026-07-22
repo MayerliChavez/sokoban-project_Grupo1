@@ -53,6 +53,12 @@ public class GestorVentanas {
         });
         
         controlador.setDespuesDeMover(() -> {
+            if (juego.getTableroActual().isReinicioSolicitado()) {
+                juego.reiniciarNivelActual();
+                controlador.setTablero(juego.getTableroActual());
+                ventana.actualizarTablero(juego.getTableroActual());
+                return;
+            }
             if (flujo.estadoAnterior != null) {
                 juego.getHistorial().registrarEstado(flujo.estadoAnterior);
                 flujo.estadoAnterior = null;
