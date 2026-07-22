@@ -38,7 +38,7 @@ public final class GestorColisiones {
             return false;
         }
 
-        Caja caja = tablero.obtenerCaja(filaDestino, columnaDestino);
+        Caja caja = tablero.obtenerCajaEnPosicion(filaDestino, columnaDestino);
         if (caja == null) {
             if (!tablero.esCeldaTransitable(filaDestino, columnaDestino)) {
                 return false;
@@ -58,7 +58,7 @@ public final class GestorColisiones {
         int columnaDestinoCaja = columnaDestino + deltaColumna;
         if (!tablero.estaDentroDelTablero(filaDestinoCaja, columnaDestinoCaja)
                 || !tablero.esCeldaTransitable(filaDestinoCaja, columnaDestinoCaja)
-                || tablero.obtenerCaja(filaDestinoCaja, columnaDestinoCaja) != null) {
+                || tablero.esCeldaCaja(filaDestinoCaja, columnaDestinoCaja)) {
             return false;
         }
 

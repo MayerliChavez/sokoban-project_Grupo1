@@ -28,9 +28,9 @@ public final class ReglasJuego {
         boolean existeMeta = false;
         for (int fila = 0; fila < tablero.getFilas(); fila++) {
             for (int columna = 0; columna < tablero.getColumnas(); columna++) {
-                if (tablero.esMeta(fila, columna)) {
+                if (tablero.esCeldaMeta(fila, columna)) {
                     existeMeta = true;
-                    if (tablero.obtenerCaja(fila, columna) == null) {
+                    if (!tablero.esCeldaCaja(fila, columna)) {
                         return false;
                     }
                 }

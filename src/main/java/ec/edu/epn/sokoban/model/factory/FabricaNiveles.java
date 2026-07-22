@@ -1,17 +1,23 @@
 package ec.edu.epn.sokoban.model.factory;
 
 import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.escenario.Teletransportacion;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Pared;
 import ec.edu.epn.sokoban.model.escenario.Suelo;
 import ec.edu.epn.sokoban.model.escenario.Meta;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Lava;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 
 /**
- * Fábrica encargada de instanciar y armar el tablero a partir del mapa de datos del nivel.
+ * Fábrica encargada de instanciar y armar el tablero a partir del mapa de datos
+ * del nivel.
  */
 public class FabricaNiveles {
 
@@ -30,17 +36,26 @@ public class FabricaNiveles {
         Casilla[][] celdas = new Casilla[filas][columnas];
         boolean[][] metas = new boolean[filas][columnas];
 
+        List<int[]> portales = new ArrayList<>();
+        for (int f = 0; f < filas; f++) {
+            for (int c = 0; c < columnas; c++) {
+                if ("T".equals(mapaDatos[f][c])) {
+                    portales.add(new int[] { f, c });
+                }
+            }
+        }
+
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 String simbolo = mapaDatos[f][c];
-                celdas[f][c] = crearCasilla(simbolo, f, c, metas);
+                celdas[f][c] = crearCasilla(simbolo, f, c, metas, portales);
             }
         }
 
         return CargadorTablero.cargar(celdas, metas);
     }
 
-    private Casilla crearCasilla(String simbolo, int fila, int columna, boolean[][] metas) {
+    private Casilla crearCasilla(String simbolo, int fila, int columna, boolean[][] metas, List<int[]> portales) {
         if (simbolo == null) {
             return new Suelo(fila, columna);
         }
@@ -76,6 +91,34 @@ public class FabricaNiveles {
                 Suelo sueloLava = new Suelo(fila, columna);
                 sueloLava.getGestorAcciones().agregarAccion(new Lava());
                 return sueloLava;
+            case "T":
+                Suelo sueloPortal = new Suelo(fila, columna);
+
+                int indicePortalActual = -1;
+
+                for (int i = 0; i < portales.size(); i++) {
+                    int[] coordenadasPortal = portales.get(i);
+
+                    if (coordenadasPortal[0] == fila && coordenadasPortal[1] == columna) {
+                        indicePortalActual = i;
+                        break;
+                    }
+                }
+
+                if (indicePortalActual != -1) {
+                    int indicePortalPareja = (indicePortalActual % 2 == 0)
+                            ? indicePortalActual + 1
+                            : indicePortalActual - 1;
+
+                    if (indicePortalPareja >= 0 && indicePortalPareja < portales.size()) {
+                        int[] coordenadasPortalPareja = portales.get(indicePortalPareja);
+
+                        sueloPortal.getGestorAcciones().agregarAccion(
+                                new Teletransportacion(coordenadasPortalPareja[0], coordenadasPortalPareja[1]));
+                    }
+                }
+
+                return sueloPortal;
 
             default:
                 return new Suelo(fila, columna);

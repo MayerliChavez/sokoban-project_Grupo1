@@ -31,7 +31,7 @@ public class Tablero extends Casilla {
             for (int c = 0; c < columnas; c++) {
                 Casilla casilla = this.celdas[f][c];
                 if (casilla instanceof Personaje || casilla instanceof Caja) {
-                    if (esMeta(f, c)) {
+                    if (esCeldaMeta(f, c)) {
                         this.casillasBase[f][c] = new Meta(f, c);
                     } else {
                         this.casillasBase[f][c] = new Suelo(f, c);
@@ -51,7 +51,7 @@ public class Tablero extends Casilla {
         return columnas;
     }
 
-    public boolean esMeta(int f, int c) {
+    public boolean esCeldaMeta(int f, int c) {
         return estaDentroDelTablero(f, c) && metas[f][c];
     }
 
@@ -101,7 +101,7 @@ public class Tablero extends Casilla {
             } else if (nuevaCasilla instanceof Personaje) {
                 this.personaje = (Personaje) nuevaCasilla;
             } else if (nuevaCasilla instanceof Caja) {
-                ((Caja) nuevaCasilla).setEnMeta(esMeta(f, c));
+                ((Caja) nuevaCasilla).setEnMeta(esCeldaMeta(f, c));
             }
         }
 
@@ -117,7 +117,11 @@ public class Tablero extends Casilla {
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
     }
 
-    public Caja obtenerCaja(int fila, int columna) {
+    public boolean esCeldaCaja(int fila, int columna) {
+        return obtenerCasilla(fila, columna) instanceof Caja;
+    }
+
+    public Caja obtenerCajaEnPosicion(int fila, int columna) {
         Casilla casilla = obtenerCasilla(fila, columna);
         return casilla instanceof Caja ? (Caja) casilla : null;
     }
