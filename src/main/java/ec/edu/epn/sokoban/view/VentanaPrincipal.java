@@ -562,6 +562,92 @@ public class VentanaPrincipal extends BorderPane {
         zonaTablero.getChildren().add(overlay);
     }
 
+    public void mostrarOverlayDerrota() {
+        if (zonaTablero == null || zonaTablero.getChildren().size() > 1) {
+            return;
+        }
+
+        VBox overlay = new VBox(20);
+        overlay.setAlignment(Pos.CENTER);
+        overlay.setStyle(
+                "-fx-background-color: rgba(15, 5, 5, 0.90);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-border-color: #E53935;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-max-width: 450px;" +
+                        "-fx-max-height: 280px;");
+
+        DropShadow sombra = new DropShadow();
+        sombra.setRadius(25);
+        sombra.setColor(Color.rgb(229, 57, 53, 0.5));
+        overlay.setEffect(sombra);
+
+        Label lblMensaje = new Label("¡HAS PERDIDO!");
+        lblMensaje.setStyle(
+                "-fx-text-fill: #FF5252;" +
+                        "-fx-font-size: 32px;" +
+                        "-fx-font-weight: bold;");
+
+        Label lblSubtitulo = new Label("Has caído en una trampa o terreno peligroso.");
+        lblSubtitulo.setStyle(
+                "-fx-text-fill: #F0E8D8;" +
+                        "-fx-font-size: 15px;");
+
+        Button btnReintentar = new Button("Reintentar Nivel");
+        btnReintentar.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #E53935, #B71C1C);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-color: rgba(255,255,255,0.3);" +
+                        "-fx-border-width: 2;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-pref-width: 220px;" +
+                        "-fx-pref-height: 45px;");
+
+        btnReintentar.setOnMouseEntered(e -> btnReintentar.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #FF5252, #D32F2F);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-color: rgba(255,255,255,0.4);" +
+                        "-fx-border-width: 2;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-pref-width: 220px;" +
+                        "-fx-pref-height: 45px;"));
+
+        btnReintentar.setOnMouseExited(e -> btnReintentar.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #E53935, #B71C1C);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-color: rgba(255,255,255,0.3);" +
+                        "-fx-border-width: 2;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-pref-width: 220px;" +
+                        "-fx-pref-height: 45px;"));
+
+        btnReintentar.setOnAction(e -> {
+            juego.reiniciarNivelActual();
+            Tablero nuevoTablero = juego.getTableroActual();
+            actualizarTablero(nuevoTablero);
+            if (controladorTeclado != null) {
+                controladorTeclado.setTablero(nuevoTablero);
+            }
+            actualizarEstadisticas();
+        });
+
+        overlay.getChildren().addAll(lblMensaje, lblSubtitulo, btnReintentar);
+        zonaTablero.getChildren().add(overlay);
+    }
+
     public void setControladorTeclado(ControladorTeclado controladorTeclado) {
         this.controladorTeclado = controladorTeclado;
     }

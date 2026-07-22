@@ -7,7 +7,6 @@ import ec.edu.epn.sokoban.model.interfaces.Accion;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -38,6 +37,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     private int tamCelda = TAM_CELDA_MAX;
 
     private final Map<String, Image> sprites = new HashMap<>();
+    private StackPane[][] celdasNodes;
 
     public PanelTablero(Tablero tablero) {
         this.tablero = tablero;
@@ -127,27 +127,68 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         return new Image(stream);
     }
 
-    private void dibujarTablero() {
-        getChildren().clear();
-
+    private void inicializarEstructuraGrid() {
         if (tablero == null) {
             return;
         }
 
-        for (int fila = 0; fila < tablero.getFilas(); fila++) {
-            for (int columna = 0; columna < tablero.getColumnas(); columna++) {
-                Casilla casilla = tablero.obtenerCasilla(fila, columna);
+        int filas = tablero.getFilas();
+        int columnas = tablero.getColumnas();
+
+        if (filas <= 0 || columnas <= 0) {
+            return;
+        }
+
+        if (celdasNodes != null
+                && celdasNodes.length == filas
+                && celdasNodes[0].length == columnas) {
+            for (int f = 0; f < filas; f++) {
+                for (int c = 0; c < columnas; c++) {
+                    StackPane celda = celdasNodes[f][c];
+                    celda.setPrefSize(tamCelda, tamCelda);
+                    celda.setMinSize(tamCelda, tamCelda);
+                    celda.setMaxSize(tamCelda, tamCelda);
+                }
+            }
+            return;
+        }
+
+        getChildren().clear();
+        celdasNodes = new StackPane[filas][columnas];
+
+        for (int fila = 0; fila < filas; fila++) {
+            for (int columna = 0; columna < columnas; columna++) {
                 StackPane celda = new StackPane();
                 celda.setAlignment(Pos.CENTER);
                 celda.setPrefSize(tamCelda, tamCelda);
                 celda.setMinSize(tamCelda, tamCelda);
                 celda.setMaxSize(tamCelda, tamCelda);
 
+                celdasNodes[fila][columna] = celda;
+                add(celda, columna, fila);
+            }
+        }
+    }
+
+    private void dibujarTablero() {
+        if (tablero == null) {
+            return;
+        }
+
+        inicializarEstructuraGrid();
+
+        int filas = tablero.getFilas();
+        int columnas = tablero.getColumnas();
+
+        for (int fila = 0; fila < filas; fila++) {
+            for (int columna = 0; columna < columnas; columna++) {
+                StackPane celda = celdasNodes[fila][columna];
+                celda.getChildren().clear();
+
+                Casilla casilla = tablero.obtenerCasilla(fila, columna);
                 if (casilla != null) {
                     casilla.dibujar(this, celda, tamCelda);
                 }
-
-                add(celda, columna, fila);
             }
         }
     }
@@ -162,12 +203,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
             celda.getChildren().add(crearFondoRespaldo(Color.web("#D9C58A")));
         }
 
-        Rectangle bordeCelda = new Rectangle(tamCelda, tamCelda);
-        bordeCelda.setFill(Color.TRANSPARENT);
-        bordeCelda.setStroke(Color.rgb(0, 0, 0, 0.35));
-        bordeCelda.setStrokeWidth(1);
-
-        celda.getChildren().add(bordeCelda);
+        celda.setStyle("-fx-border-color: rgba(0, 0, 0, 0.35); -fx-border-width: 0.5px;");
     }
 
     private void agregarSprite(StackPane celda, String claveSprite, Color colorRespaldo) {
@@ -214,13 +250,6 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     private Rectangle crearFondoRespaldo(Color color) {
         Rectangle rect = new Rectangle(tamCelda, tamCelda);
         rect.setFill(color);
-        rect.setStroke(Color.rgb(0, 0, 0, 0.4));
-
-        InnerShadow sombraInterna = new InnerShadow();
-        sombraInterna.setRadius(4);
-        sombraInterna.setColor(Color.rgb(0, 0, 0, 0.25));
-        rect.setEffect(sombraInterna);
-
         return rect;
     }
 
@@ -247,7 +276,16 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         if (caja.isEnMeta()) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
-        agregarSprite(celda, "CAJA", Color.web("#B8793B"));
+        if (tieneExplosion(caja)) {
+            agregarSprite(celda, "CAJA_EXPLOSIVA", Color.web("#D32F2F"));
+        } else {
+            agregarSprite(celda, "CAJA", Color.web("#B8793B"));
+        }
+    }
+
+    private boolean tieneExplosion(Caja caja) {
+        return caja != null && caja.getGestorAcciones().getAcciones().stream()
+                .anyMatch(accion -> accion instanceof Explosion);
     }
 
     @Override
@@ -296,15 +334,5 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
             case "PORTAL" -> Color.web("#8A2BE2");
             default -> Color.TRANSPARENT;
         };
-    }
-
-    /**
-     * Meotodo privado que permite saber si una caja tiene o no explosion
-     * @param caja
-     * @return
-     */
-    private boolean tieneExplosion(Caja caja) {
-        return caja.getGestorAcciones().getAcciones().stream()
-                .anyMatch(accion -> accion instanceof Explosion);
     }
 }

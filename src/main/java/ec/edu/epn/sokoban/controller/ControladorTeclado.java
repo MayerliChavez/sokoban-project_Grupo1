@@ -25,6 +25,9 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
     private Runnable accionDeshacer;
     private BooleanSupplier checkNivelCompletado;
 
+    private KeyCode ultimoCodigo = null;
+    private long ultimoMovimientoTiempo = 0;
+
     public ControladorTeclado(Personaje personaje, Tablero tablero, GestorColisiones gestorColisiones) {
         this.personaje = personaje;
         this.tablero = tablero;
@@ -67,9 +70,8 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
         if (checkNivelCompletado != null && checkNivelCompletado.getAsBoolean()) {
             return;
         }
-        KeyCode codigo = evento.getCode();
 
-        System.out.println(">>> Tecla detectada en controlador: " + codigo);
+        KeyCode codigo = evento.getCode();
 
         Direccion direccionElegida = null;
 
@@ -94,12 +96,26 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
             case BACK_SPACE:
             case U:
                 if (accionDeshacer != null) {
-                    accionDeshacer.run();
+                    long ahoraUndo = System.currentTimeMillis();
+                    if (ahoraUndo - ultimoMovimientoTiempo >= 40) {
+                        ultimoMovimientoTiempo = ahoraUndo;
+                        ultimoCodigo = codigo;
+                        accionDeshacer.run();
+                    }
                 }
                 return;
             default:
                 return; // Ignora cualquier otra tecla
         }
+
+        long ahora = System.currentTimeMillis();
+        long cooldownRequerido = (codigo == ultimoCodigo) ? 50 : 20;
+
+        if (ahora - ultimoMovimientoTiempo < cooldownRequerido) {
+            return;
+        }
+        ultimoMovimientoTiempo = ahora;
+        ultimoCodigo = codigo;
 
         Personaje personajeActual = (tablero != null && tablero.getPersonaje() != null) ? tablero.getPersonaje() : personaje;
         if (personajeActual != null) {

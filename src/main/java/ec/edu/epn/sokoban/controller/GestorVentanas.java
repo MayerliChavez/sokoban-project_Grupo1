@@ -1,7 +1,9 @@
 package ec.edu.epn.sokoban.controller;
 
 import ec.edu.epn.sokoban.model.JuegoSokoban;
+import ec.edu.epn.sokoban.model.escenario.Agrietado;
 import ec.edu.epn.sokoban.model.escenario.Azar;
+import ec.edu.epn.sokoban.model.escenario.Lava;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
@@ -70,30 +72,16 @@ public class GestorVentanas {
             ventana.actualizarEstadisticas();
         });
 
-        // Callback compartido de derrota (Lava, Agrietado, etc.): al perder se reinicia el nivel actual.
+        // Callback compartido de derrota (Lava, Agrietado, Azar): al perder muestra el overlay de derrota.
         Runnable accionDerrota = () -> Platform.runLater(() -> {
-            juego.reiniciarNivelActual();
-            Tablero tableroReiniciado = juego.getTableroActual();
-            ventana.actualizarTablero(tableroReiniciado);
-            controlador.setTablero(tableroReiniciado);
-            ventana.actualizarEstadisticas();
+            ventana.mostrarOverlayDerrota();
         });
 
         Lava.registrarNotificadorDerrota(accionDerrota);
         Agrietado.registrarNotificadorReinicio(accionDerrota);
+        Azar.registrarNotificadorDerrota(accionDerrota);
 
         ventana.setControladorTeclado(controlador);
-
-        // Registro de notificacion de derrota para reinicio en Azar
-        Azar.registrarNotificadorDerrota(() ->
-            Platform.runLater(() -> {
-                juego.reiniciarNivelActual();
-                Tablero tableroReiniciado = juego.getTableroActual();
-                ventana.actualizarTablero(tableroReiniciado);
-                controlador.setTablero(tableroReiniciado);
-                ventana.actualizarEstadisticas();
-            })
-        );
 
         Scene scene = new Scene(ventana, 1280, 720);
         scene.setOnKeyPressed(controlador);

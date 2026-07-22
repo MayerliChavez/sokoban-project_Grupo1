@@ -31,7 +31,7 @@ public class Explosion implements Accion {
         int fila = casillaActual.getFila();
         int columna = casillaActual.getColumna();
 
-        int[][] direcciones = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+        int[][] direcciones = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 
         for (int[] d : direcciones) {
             int f = fila + d[0];
@@ -49,6 +49,14 @@ public class Explosion implements Accion {
 
         tablero.restaurarCasillaBase(fila, columna);
         this.detonada = true;
+    }
+
+    public boolean isDetonada() {
+        return detonada;
+    }
+
+    public void setDetonada(boolean detonada) {
+        this.detonada = detonada;
     }
 
 }

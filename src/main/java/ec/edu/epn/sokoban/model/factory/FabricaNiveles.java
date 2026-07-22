@@ -1,21 +1,21 @@
 package ec.edu.epn.sokoban.model.factory;
 
-import ec.edu.epn.sokoban.model.escenario.Tablero;
-import ec.edu.epn.sokoban.model.escenario.Teletransportacion;
+import ec.edu.epn.sokoban.model.escenario.Agrietado;
+import ec.edu.epn.sokoban.model.escenario.Azar;
+import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Explosion;
 import ec.edu.epn.sokoban.model.escenario.Lava;
-import ec.edu.epn.sokoban.model.escenario.Pared;
-import ec.edu.epn.sokoban.model.escenario.Suelo;
 import ec.edu.epn.sokoban.model.escenario.Meta;
-import ec.edu.epn.sokoban.model.escenario.Caja;
+import ec.edu.epn.sokoban.model.escenario.Pared;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
+import ec.edu.epn.sokoban.model.escenario.Suelo;
+import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.escenario.Teletransportacion;
 import ec.edu.epn.sokoban.model.historial.Nivel;
-import ec.edu.epn.sokoban.model.escenario.Azar;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Fábrica encargada de instanciar y armar el tablero a partir del mapa de datos del nivel.
@@ -37,17 +37,26 @@ public class FabricaNiveles {
         Casilla[][] celdas = new Casilla[filas][columnas];
         boolean[][] metas = new boolean[filas][columnas];
 
+        List<int[]> portales = new ArrayList<>();
+        for (int f = 0; f < filas; f++) {
+            for (int c = 0; c < columnas; c++) {
+                if ("T".equals(mapaDatos[f][c])) {
+                    portales.add(new int[] { f, c });
+                }
+            }
+        }
+
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 String simbolo = mapaDatos[f][c];
-                celdas[f][c] = crearCasilla(simbolo, f, c, metas);
+                celdas[f][c] = crearCasilla(simbolo, f, c, metas, portales);
             }
         }
 
         return CargadorTablero.cargar(celdas, metas);
     }
 
-    private Casilla crearCasilla(String simbolo, int fila, int columna, boolean[][] metas) {
+    private Casilla crearCasilla(String simbolo, int fila, int columna, boolean[][] metas, List<int[]> portales) {
         if (simbolo == null) {
             return new Suelo(fila, columna);
         }
@@ -58,6 +67,11 @@ public class FabricaNiveles {
 
             case " ":
                 return new Suelo(fila, columna);
+
+            case "A":
+                Suelo sueloAgrietado = new Suelo(fila, columna);
+                sueloAgrietado.getGestorAcciones().agregarAccion(new Agrietado());
+                return sueloAgrietado;
 
             case ".":
                 metas[fila][columna] = true;
@@ -72,13 +86,53 @@ public class FabricaNiveles {
                 metas[fila][columna] = true;
                 return cajaEnMeta;
 
+            case "X":
+                Caja cajaExplosiva = new Caja(fila, columna);
+                cajaExplosiva.getGestorAcciones().agregarAccion(new Explosion());
+                return cajaExplosiva;
+
             case "@":
                 return new Personaje(fila, columna);
 
             case "+":
                 metas[fila][columna] = true;
                 return new Personaje(fila, columna);
-            case "?": //  CASILLA DE AZAR (Misterio/Suerte con símbolo '?')
+
+            case "L": // Grupo 2: suelo con acción de Lava
+                Suelo sueloLava = new Suelo(fila, columna);
+                sueloLava.getGestorAcciones().agregarAccion(new Lava());
+                return sueloLava;
+
+            case "T":
+                Suelo sueloPortal = new Suelo(fila, columna);
+
+                int indicePortalActual = -1;
+
+                for (int i = 0; i < portales.size(); i++) {
+                    int[] coordenadasPortal = portales.get(i);
+
+                    if (coordenadasPortal[0] == fila && coordenadasPortal[1] == columna) {
+                        indicePortalActual = i;
+                        break;
+                    }
+                }
+
+                if (indicePortalActual != -1) {
+                    int indicePortalPareja = (indicePortalActual % 2 == 0)
+                            ? indicePortalActual + 1
+                            : indicePortalActual - 1;
+
+                    if (indicePortalPareja >= 0 && indicePortalPareja < portales.size()) {
+                        int[] coordenadasPortalPareja = portales.get(indicePortalPareja);
+
+                        sueloPortal.getGestorAcciones().agregarAccion(
+                                new Teletransportacion(coordenadasPortalPareja[0], coordenadasPortalPareja[1]));
+                    }
+                }
+
+                return sueloPortal;
+
+            case "?": // CASILLA DE AZAR (Misterio/Suerte con símbolo '?')
                 Suelo sueloAzar = new Suelo(fila, columna);
                 sueloAzar.getGestorAcciones().agregarAccion(new Azar(0.80));
                 return sueloAzar;

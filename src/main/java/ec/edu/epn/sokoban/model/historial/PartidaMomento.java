@@ -54,7 +54,8 @@ public class PartidaMomento {
                 Casilla celdaGuardada = celdasSnapshot[f][c];
                 Casilla celdaRestaurada = copiarCasilla(celdaGuardada);
 
-                if (celdaRestaurada instanceof Pared || celdaRestaurada instanceof Suelo || celdaRestaurada instanceof Meta) {
+                if (celdaRestaurada instanceof Pared || celdaRestaurada instanceof Suelo
+                        || celdaRestaurada instanceof Meta) {
                     t.reemplazarTerrenoPermanente(f, c, celdaRestaurada);
                 } else {
                     t.actualizarCasilla(f, c, celdaRestaurada);
@@ -95,6 +96,14 @@ public class PartidaMomento {
             copia.setAgrietado(orig.isAgrietado());
             copia.setRoto(orig.isRoto());
             return copia;
+        } else if (a instanceof Explosion) {
+            Explosion orig = (Explosion) a;
+            Explosion copia = new Explosion();
+            copia.setDetonada(orig.isDetonada());
+            return copia;
+        } else if (a instanceof Teletransportacion) {
+            Teletransportacion orig = (Teletransportacion) a;
+            return new Teletransportacion(orig.getFilaDestino(), orig.getColumnaDestino());
         }
         return a;
     }
