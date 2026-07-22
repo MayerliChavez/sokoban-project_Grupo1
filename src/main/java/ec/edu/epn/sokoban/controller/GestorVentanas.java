@@ -2,6 +2,7 @@ package ec.edu.epn.sokoban.controller;
 
 import ec.edu.epn.sokoban.model.JuegoSokoban;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.escenario.Agrietado;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
 import ec.edu.epn.sokoban.view.Creditos;
@@ -10,6 +11,8 @@ import ec.edu.epn.sokoban.view.SeleccionNivel;
 import ec.edu.epn.sokoban.view.VentanaPrincipal;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 
@@ -46,13 +49,30 @@ public class GestorVentanas {
             juego.getReglasJuego().getGestorColisiones()
         );
         controlador.setVentanaPrincipal(ventana);
-        controlador.setCheckNivelCompletado(() -> juego.getNivelActual() != null && juego.getNivelActual().isCompletado());
+        controlador.setCheckNivelCompletado(() ->
+            juego.getNivelActual() != null && juego.getNivelActual().isCompletado()
+                || Agrietado.isReinicioSolicitado());
         
         controlador.setAntesDeMover(() -> {
             flujo.estadoAnterior = juego.capturarEstadoActual();
         });
         
         controlador.setDespuesDeMover(() -> {
+            if (Agrietado.isReinicioSolicitado()) {
+                flujo.estadoAnterior = null;
+                ventana.actualizarTablero(juego.getTableroActual());
+
+                PauseTransition pausa = new PauseTransition(Duration.millis(500));
+                pausa.setOnFinished(evento -> {
+                    Agrietado.limpiarSolicitudReinicio();
+                    juego.reiniciarNivelActual();
+                    controlador.setTablero(juego.getTableroActual());
+                    ventana.actualizarTablero(juego.getTableroActual());
+                    ventana.actualizarEstadisticas();
+                });
+                pausa.play();
+                return;
+            }
             if (flujo.estadoAnterior != null) {
                 juego.getHistorial().registrarEstado(flujo.estadoAnterior);
                 flujo.estadoAnterior = null;
