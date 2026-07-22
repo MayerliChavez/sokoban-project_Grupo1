@@ -31,7 +31,7 @@ public class Tablero extends Casilla {
             for (int c = 0; c < columnas; c++) {
                 Casilla casilla = this.celdas[f][c];
                 if (casilla instanceof Personaje || casilla instanceof Caja) {
-                    if (esMeta(f, c)) {
+                    if (esCeldaMeta(f, c)) {
                         this.casillasBase[f][c] = new Meta(f, c);
                     } else {
                         this.casillasBase[f][c] = new Suelo(f, c);
@@ -51,7 +51,7 @@ public class Tablero extends Casilla {
         return columnas;
     }
 
-    public boolean esMeta(int f, int c) {
+    public boolean esCeldaMeta(int f, int c) {
         return estaDentroDelTablero(f, c) && metas[f][c];
     }
 
@@ -101,11 +101,30 @@ public class Tablero extends Casilla {
             } else if (nuevaCasilla instanceof Personaje) {
                 this.personaje = (Personaje) nuevaCasilla;
             } else if (nuevaCasilla instanceof Caja) {
-                ((Caja) nuevaCasilla).setEnMeta(esMeta(f, c));
+                ((Caja) nuevaCasilla).setEnMeta(esCeldaMeta(f, c));
             }
         }
 
         celdas[f][c] = nuevaCasilla;
+    }
+
+    /**
+     * Reemplaza el terreno de una posicion de forma PERMANENTE (por ejemplo,
+     * cuando una pared es destruida por una explosion). A diferencia de
+     * actualizarCasilla(), este metodo tambien actualiza casillasBase, para
+     * que restaurarCasillaBase() (invocado cuando un Personaje o Caja
+     * abandona esa posicion) no reconstruya el terreno anterior.
+     *
+     * @param f fila de la posicion a modificar
+     * @param c columna de la posicion a modificar
+     * @param nuevoTerreno la nueva casilla de terreno (por ejemplo, un Suelo)
+     */
+    public void reemplazarTerrenoPermanente(int f, int c, Casilla nuevoTerreno) {
+        if (!estaDentroDelTablero(f, c)) {
+            return;
+        }
+        casillasBase[f][c] = nuevoTerreno;
+        actualizarCasilla(f, c, nuevoTerreno);
     }
 
     public boolean esCeldaTransitable(int f, int c) {
@@ -117,7 +136,11 @@ public class Tablero extends Casilla {
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
     }
 
-    public Caja obtenerCaja(int fila, int columna) {
+    public boolean esCeldaCaja(int fila, int columna) {
+        return obtenerCasilla(fila, columna) instanceof Caja;
+    }
+
+    public Caja obtenerCajaEnPosicion(int fila, int columna) {
         Casilla casilla = obtenerCasilla(fila, columna);
         return casilla instanceof Caja ? (Caja) casilla : null;
     }

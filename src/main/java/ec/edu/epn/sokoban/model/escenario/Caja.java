@@ -1,9 +1,6 @@
 package ec.edu.epn.sokoban.model.escenario;
 
-import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.interfaces.Dibujador;
-
-import ec.edu.epn.sokoban.model.reglas.GestorColisiones;
 
 /**
  * La clase Caja fue definida como una casilla no transitable y empujable.
@@ -37,43 +34,8 @@ public class Caja extends Casilla {
         this.enMeta = enMeta;
     }
 
-    /**
-     * Mueve la caja en el tablero en la dirección dada, actualizando sus coordenadas internas
-     * y actualizando las celdas afectadas del tablero.
-     *
-     * @param d la dirección del movimiento
-     * @param t el tablero sobre el cual se mueve
-     * @param gestorColisiones gestor de colisiones opcional
-     * @return true si el movimiento fue ejecutado, false en caso contrario
-     */
-    @Override
-    public boolean mover(Direccion d, Tablero t, GestorColisiones gestorColisiones) {
-        if (d == null || t == null) {
-            return false;
-        }
 
-        int filaOrigen = getFila();
-        int columnaOrigen = getColumna();
-        int filaDestino = filaOrigen + d.getDeltaFila();
-        int columnaDestino = columnaOrigen + d.getDeltaColumna();
 
-        Casilla destino = t.obtenerCasilla(filaDestino, columnaDestino);
-        boolean posteriorEsMeta = destino instanceof Meta;
-
-        // Cambiar estado de enMeta en la caja
-        setEnMeta(posteriorEsMeta);
-
-        // Mutar coordenadas internas
-        setFila(filaDestino);
-        setColumna(columnaDestino);
-
-        t.actualizarCasilla(filaDestino, columnaDestino, this);
-        return true;
-    }
-
-    public boolean mover(Direccion d, Tablero t) {
-        return mover(d, t, null);
-    }
 
     /**
      * El estado de ubicacion sobre una meta es retornado.

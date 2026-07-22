@@ -111,6 +111,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("JUGADOR", cargarImagen("/images/player.png"));
         sprites.put("AGRIETADO", cargarImagen("/images/agrietado.png"));
         sprites.put("AGRIETADO_ROTO", cargarImagen("/images/agrietado_roto.png"));
+        sprites.put("CAJA_EXPLOSIVA", cargarImagen("/images/explosionBox.png"));
     }
 
     private Image cargarImagen(String ruta) {
@@ -191,7 +192,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
 
     private double obtenerTamanoSprite(String claveSprite) {
         return switch (claveSprite) {
-            case "CAJA" -> tamCelda * 0.78;
+            case "CAJA", "CAJA_EXPLOSIVA" -> tamCelda * 0.78;
             case "JUGADOR" -> tamCelda * 0.88;
             case "META" -> tamCelda * 0.97;
             default -> tamCelda;
@@ -244,7 +245,9 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         if (caja.isEnMeta()) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
-        agregarSprite(celda, "CAJA", Color.web("#B8793B"));
+        String claveSprite = tieneExplosion(caja) ? "CAJA_EXPLOSIVA" : "CAJA";
+        agregarSprite(celda, claveSprite, Color.web("#B8793B"));
+
     }
 
     @Override
@@ -255,6 +258,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
             agregarSprite(celda, "AGRIETADO_ROTO", Color.web("#1F1712"));
         }
         if (tablero != null && tablero.esMeta(personaje.getFila(), personaje.getColumna())) {
+        if (tablero != null && tablero.esCeldaMeta(personaje.getFila(), personaje.getColumna())) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
         agregarSprite(celda, "JUGADOR", Color.web("#4DA6FF"));
@@ -274,7 +278,8 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     }
 
     private void dibujarAccionesDeCasilla(int fila, int columna, StackPane celda) {
-        if (tablero == null) return;
+        if (tablero == null)
+            return;
         Casilla casilla = tablero.obtenerCasilla(fila, columna);
         if (casilla != null) {
             for (Accion accion : casilla.getGestorAcciones().getAcciones()) {
@@ -293,5 +298,19 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
             case "AGRIETADO_ROTO" -> Color.web("#1F1712");
             default -> Color.TRANSPARENT;
         };
+            case "LAVA" -> Color.web("#FF4500"); // Grupo 2: respaldo naranja/rojo
+            case "PORTAL" -> Color.web("#8A2BE2");
+            default -> Color.TRANSPARENT;
+        };
+    }
+
+    /**
+     * Meotodo privado que permite saber si una caja tiene o no explosion
+     * @param caja
+     * @return
+     */
+    private boolean tieneExplosion(Caja caja) {
+        return caja.getGestorAcciones().getAcciones().stream()
+                .anyMatch(accion -> accion instanceof Explosion);
     }
 }

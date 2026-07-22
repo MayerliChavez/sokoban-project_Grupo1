@@ -5,6 +5,8 @@ import ec.edu.epn.sokoban.model.escenario.Tablero;
 import ec.edu.epn.sokoban.model.escenario.Agrietado;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
+import ec.edu.epn.sokoban.model.escenario.Lava;
+import javafx.application.Platform;
 import ec.edu.epn.sokoban.view.Creditos;
 import ec.edu.epn.sokoban.view.MenuInicio;
 import ec.edu.epn.sokoban.view.SeleccionNivel;
@@ -85,7 +87,18 @@ public class GestorVentanas {
             ventana.actualizarTablero(juego.getTableroActual());
             ventana.actualizarEstadisticas();
         });
-        
+
+        // Callback de derrota de la mecánica de Lava (Grupo 2): al perder se
+        // reinicia el nivel actual. Platform.runLater difiere el reinicio
+        // hasta que el flujo del movimiento en curso termine.
+        Lava.registrarNotificadorDerrota(() -> Platform.runLater(() -> {
+            juego.reiniciarNivelActual();
+            Tablero tableroReiniciado = juego.getTableroActual();
+            ventana.actualizarTablero(tableroReiniciado);
+            controlador.setTablero(tableroReiniciado);
+            ventana.actualizarEstadisticas();
+        }));
+
         ventana.setControladorTeclado(controlador);
 
         Scene scene = new Scene(ventana, 1280, 720);

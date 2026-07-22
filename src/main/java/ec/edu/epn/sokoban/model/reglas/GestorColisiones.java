@@ -38,7 +38,7 @@ public final class GestorColisiones {
             return false;
         }
 
-        Caja caja = tablero.obtenerCaja(filaDestino, columnaDestino);
+        Caja caja = tablero.obtenerCajaEnPosicion(filaDestino, columnaDestino);
         if (caja == null) {
             if (!tablero.esCeldaTransitable(filaDestino, columnaDestino)) {
                 return false;
@@ -58,7 +58,22 @@ public final class GestorColisiones {
         int columnaDestinoCaja = columnaDestino + deltaColumna;
         if (!tablero.estaDentroDelTablero(filaDestinoCaja, columnaDestinoCaja)
                 || !tablero.esCeldaTransitable(filaDestinoCaja, columnaDestinoCaja)
-                || tablero.obtenerCaja(filaDestinoCaja, columnaDestinoCaja) != null) {
+                || tablero.esCeldaCaja(filaDestinoCaja, columnaDestinoCaja)) {
+
+            // INICIO: mecanica caja explosiva (Grupo4) =====
+            // La caja no pudo avanzar. Le damos la oportunidad de reaccionar
+            // a traves de sus propias Acciones registradas (ej. Explosion),
+            // sin que GestorColisiones conozca ningun tipo concreto de caja.
+            caja.getGestorAcciones().ejecutarAcciones(caja, tablero, caja);
+
+            boolean siguePresente = tablero.obtenerCajaEnPosicion(filaDestino, columnaDestino) == caja;
+            if (!siguePresente) {
+                // Alguna Accion registrada (ej. Explosion) libero la posicion.
+                tablero.actualizarCasilla(filaDestino, columnaDestino, personaje);
+                return true;
+            }
+            // ===== FIN: mecanica caja explosiva =====
+
             return false;
         }
 
